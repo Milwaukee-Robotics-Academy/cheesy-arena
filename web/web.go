@@ -137,7 +137,7 @@ func (web *Web) newHandler() http.Handler {
 	router.HandleFunc("/api/alliances", web.alliancesApiHandler).Methods("GET")
 	router.HandleFunc("/api/arena/websocket", web.arenaWebsocketApiHandler).Methods("GET")
 	router.HandleFunc("/api/bracket/svg", web.bracketSvgApiHandler).Methods("GET")
-	router.HandleFunc("/api/grid/{alliance}/svg", web.gridSvgApiHandler).Methods("GET")
+	// router.HandleFunc("/api/grid/{alliance}/svg", web.gridSvgApiHandler).Methods("GET")
 	router.HandleFunc("/api/matches/{type}", web.matchesApiHandler).Methods("GET")
 	router.HandleFunc("/api/rankings", web.rankingsApiHandler).Methods("GET")
 	router.HandleFunc("/api/sponsor_slides", web.sponsorSlidesApiHandler).Methods("GET")

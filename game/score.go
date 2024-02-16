@@ -6,13 +6,14 @@
 package game
 
 type Score struct {
-	AutoLeaveStatuses			[3]bool
-	AutoAmpNotes			   	[3]AutoAmpNotes
-	AutoSpeakerNotes			[3]AutoSpeakerNotes
-	TeleopAmpNotes				[3]TeleopAmpNotes
-	TeleopSpeakerNotes			[3]TeleopSpeakerNotes
-	TeleopAmpedSpeakerNotes		[3]TeleopAmpedSpeakerNotes
-	TrapNotes					[3]TrapNotes
+	MobilityStatuses			[3]bool
+	AutoAmpNotes			   	int
+	AutoSpeakerNotes			int
+	TeleopAmpNotes				int
+	TeleopSpeakerNotes			int
+	TeleopAmpedSpeakerNotes		int
+	TrapNotes					int
+	Harmony						[3]bool
 //	Grid                      Grid
 //	AutoChargeStationLevel    bool
 	EndgameStatuses           [3]EndgameStatus
@@ -21,18 +22,22 @@ type Score struct {
 	PlayoffDq                 bool
 }
 
-var SustainabilityBonusLinkThresholdWithoutCoop = 6
-var SustainabilityBonusLinkThresholdWithCoop = 5
-var ActivationBonusPointThreshold = 26
+// var SustainabilityBonusLinkThresholdWithoutCoop = 6
+// var SustainabilityBonusLinkThresholdWithCoop = 5
+// var ActivationBonusPointThreshold = 26
+var TotalNotesScored = 0
+var StagePoints = 0
+var RobotsOnStage = 0
 
-//represents scores in Auto
-type AutoAmpNotes int
-type AutoSpeakerNotes int
+// //represents scores in Auto
+// type AutoAmpNotes int
+// type AutoSpeakerNotes int
+// type TrapNotes int
 
-//represents scores in teleop
-type TeleopAmpNotes int
-type TeleopSpeakerNotes int
-type TeleopAmpedSpeakerNotes int
+// //represents scores in teleop
+// type TeleopAmpNotes int
+// type TeleopSpeakerNotes int
+// type TeleopAmpedSpeakerNotes int
 // Represents the state of a robot at the end of the match.
 type EndgameStatus int
 
@@ -40,6 +45,7 @@ const (
 	EndgameNone EndgameStatus = iota
 	EndgameParked
 	EndgameOnstage
+	EndgameOnstageSpotlit
 	EndgameHarmony
 	EndgameNoteInTrap
 )
@@ -54,43 +60,58 @@ func (score *Score) Summarize(opponentScore *Score) *ScoreSummary {
 	}
 
 	// Calculate autonomous period points.
-	for _, mobility := range score.AutoLeaveStatuses {
+	for _, mobility := range score.MobilityStatuses {
 		if mobility {
 			summary.MobilityPoints += 2
 		}
 	}
-	autoGridPoints := score.Grid.AutoGamePiecePoints()
-	autoChargeStationPoints := 0
-	for i := 0; i < 3; i++ {
-		if score.AutoDockStatuses[i] {
-			autoChargeStationPoints += 8
-			if score.AutoChargeStationLevel {
-				autoChargeStationPoints += 4
-			}
-			break
-		}
-	}
-	summary.AutoPoints = summary.MobilityPoints + autoGridPoints + autoChargeStationPoints
-
-	// Calculate teleoperated period points.
-	teleopGridPoints := score.Grid.TeleopGamePiecePoints() + score.Grid.LinkPoints() + score.Grid.SuperchargedPoints()
-	teleopChargeStationPoints := 0
+		// Calculate summary points for each robot.
 	for i := 0; i < 3; i++ {
 		switch score.EndgameStatuses[i] {
-		case EndgameParked:
-			summary.ParkPoints += 2
-		case EndgameDocked:
-			teleopChargeStationPoints += 6
-			if score.EndgameChargeStationLevel {
-				teleopChargeStationPoints += 4
-			}
+			 	case EndgameParked:
+			 		summary.ParkPoints += 1
+			 	case EndgameOnstage:
+			 		summary.EndgamePoints  += 3
+					StagePoints += 3
+					RobotsOnStage += 1
+				case EndgameOnstageSpotlit:
+					summary.EndgamePoints += 4
+					StagePoints += 4
+					RobotsOnStage += 1
+ 		}
+		if score.Harmony[i] {
+			summary.EndgamePoints += 2
 		}
 	}
+	summary.AutoPoints += (score.AutoAmpNotes * 2) + (score.AutoSpeakerNotes * 5)
+	summary.NotesPoints += (score.TeleopAmpNotes) + (score.TeleopSpeakerNotes * 2) + (score.TeleopAmpedSpeakerNotes * 5)
+	summary.EndgamePoints += score.TrapNotes;
+	TotalNotesScored += score.AutoAmpNotes + score.AutoSpeakerNotes + score.TeleopAmpedSpeakerNotes + score.TeleopAmpNotes + score.TeleopSpeakerNotes
+	if (TotalNotesScored > 17){
+		summary.MelodyBonus = true
+	}
+	if (StagePoints > 9 && RobotsOnStage > 1){
+		summary.EnsambleBonus = true
+	}
 
-	summary.GridPoints = autoGridPoints + teleopGridPoints
-	summary.ChargeStationPoints = autoChargeStationPoints + teleopChargeStationPoints
-	summary.EndgamePoints = teleopChargeStationPoints + summary.ParkPoints
-	summary.MatchPoints = summary.MobilityPoints + summary.GridPoints + summary.ChargeStationPoints + summary.ParkPoints
+	// Calculate teleoperated period points.
+	// teleopGridPoints := score.Grid.TeleopGamePiecePoints() + score.Grid.LinkPoints() + score.Grid.SuperchargedPoints()
+	// teleopChargeStationPoints := 0
+	// for i := 0; i < 3; i++ {
+	// 	switch score.EndgameStatuses[i] {
+	// 	case EndgameParked:
+	// 		summary.ParkPoints += 2
+	// 	case EndgameDocked:
+	// 		teleopChargeStationPoints += 6
+	// 		if score.EndgameChargeStationLevel {
+	// 			teleopChargeStationPoints += 4
+	// 		}
+	// 	}
+	// }
+
+
+
+	summary.MatchPoints = summary.MobilityPoints + summary.NotesPoints + summary.AutoPoints + summary.EndgamePoints
 
 	// Calculate penalty points.
 	for _, foul := range opponentScore.Fouls {
@@ -100,35 +121,33 @@ func (score *Score) Summarize(opponentScore *Score) *ScoreSummary {
 			summary.NumOpponentTechFouls++
 		}
 
-		rule := foul.Rule()
-		if rule != nil {
-			// Check for the opponent fouls that automatically trigger a ranking point.
-			if rule.IsRankingPoint {
-				summary.SustainabilityBonusRankingPoint = true
-			}
-		}
+		// rule := foul.Rule()
+		// if rule != nil {
+		// 	// Check for the opponent fouls that automatically trigger a ranking point.
+		// 	if rule.IsRankingPoint {
+		// 		summary.SustainabilityBonusRankingPoint = true
+		// 	}
+		// }
 	}
 
 	summary.Score = summary.MatchPoints + summary.FoulPoints
 
-	// Calculate bonus ranking points.
-	summary.CoopertitionBonus = score.Grid.IsCoopertitionThresholdAchieved() &&
-		opponentScore.Grid.IsCoopertitionThresholdAchieved()
-	summary.NumLinks = len(score.Grid.Links())
-	summary.NumLinksGoal = SustainabilityBonusLinkThresholdWithoutCoop
-	// A SustainabilityBonusLinkThresholdWithCoop of 0 disables the coopertition bonus.
-	if SustainabilityBonusLinkThresholdWithCoop > 0 && summary.CoopertitionBonus {
-		summary.NumLinksGoal = SustainabilityBonusLinkThresholdWithCoop
-	}
-	if summary.NumLinks >= summary.NumLinksGoal {
-		summary.SustainabilityBonusRankingPoint = true
-	}
-	summary.ActivationBonusRankingPoint = summary.ChargeStationPoints >= ActivationBonusPointThreshold
 
-	if summary.SustainabilityBonusRankingPoint {
+	// summary.NumLinks = len(score.Grid.Links())
+	// summary.NumLinksGoal = SustainabilityBonusLinkThresholdWithoutCoop
+	// A SustainabilityBonusLinkThresholdWithCoop of 0 disables the coopertition bonus.
+	// if SustainabilityBonusLinkThresholdWithCoop > 0 && summary.CoopertitionBonus {
+	// 	summary.NumLinksGoal = SustainabilityBonusLinkThresholdWithCoop
+	// }
+	// if summary.NumLinks >= summary.NumLinksGoal {
+	// 	summary.SustainabilityBonusRankingPoint = true
+	// }
+	// summary.ActivationBonusRankingPoint = summary.ChargeStationPoints >= ActivationBonusPointThreshold
+
+	if summary.MelodyBonus {
 		summary.BonusRankingPoints++
 	}
-	if summary.ActivationBonusRankingPoint {
+	if summary.EnsambleBonus {
 		summary.BonusRankingPoints++
 	}
 
@@ -137,12 +156,14 @@ func (score *Score) Summarize(opponentScore *Score) *ScoreSummary {
 
 // Returns true if and only if all fields of the two scores are equal.
 func (score *Score) Equals(other *Score) bool {
-	if score.AutoLeaveStatuses != other.AutoLeaveStatuses ||
-		score.Grid != other.Grid ||
-		score.AutoDockStatuses != other.AutoDockStatuses ||
-		score.AutoChargeStationLevel != other.AutoChargeStationLevel ||
+	if score.MobilityStatuses != other.MobilityStatuses ||
+		score.AutoAmpNotes != other.AutoAmpNotes ||
+		score.AutoSpeakerNotes != other.AutoSpeakerNotes ||
+		score.TeleopAmpedSpeakerNotes != other.TeleopAmpedSpeakerNotes ||
+		score.TeleopAmpNotes != other.TeleopAmpNotes ||
+		score.TeleopSpeakerNotes != other.TeleopAmpNotes ||
+		score.TrapNotes != other.TrapNotes ||
 		score.EndgameStatuses != other.EndgameStatuses ||
-		score.EndgameChargeStationLevel != other.EndgameChargeStationLevel ||
 		score.PlayoffDq != other.PlayoffDq ||
 		len(score.Fouls) != len(other.Fouls) {
 		return false

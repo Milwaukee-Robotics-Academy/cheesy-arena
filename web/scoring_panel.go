@@ -16,6 +16,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 )
 
 // Renders the scoring interface which enables input of scores in real-time.
@@ -47,6 +48,12 @@ func (web *Web) scoringPanelHandler(w http.ResponseWriter, r *http.Request) {
 		handleWebErr(w, err)
 		return
 	}
+}
+
+func incrementGoal(goal *int) bool {
+	// Use just the first hub quadrant for manual scoring.
+	*goal++
+	return true
 }
 
 // The websocket endpoint for the scoring interface client to send control commands and receive status updates.
@@ -119,17 +126,23 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 				continue
 			}
 
+			switch strings.ToUpper(command) {
+			case "Q":
+				scoreChanged = incrementGoal(&score.TeleopAmpNotes)
+			case "A":
+				scoreChanged = incrementGoal(&score.TeleopSpeakerNotes)
+			case "W":
+				scoreChanged = incrementGoal(&score.TeleopAmpedSpeakerNotes)
+			case "S":
+				scoreChanged = incrementGoal(&score.TrapNotes)
+			}
+
 			switch command {
-			case "mobilityStatus":
-				if args.TeamPosition >= 1 && args.TeamPosition <= 3 {
-					score.MobilityStatuses[args.TeamPosition-1] = !score.MobilityStatuses[args.TeamPosition-1]
-					scoreChanged = true
-				}
-			case "autoDockStatus":
-				if args.TeamPosition >= 1 && args.TeamPosition <= 3 {
-					score.AutoDockStatuses[args.TeamPosition-1] = !score.AutoDockStatuses[args.TeamPosition-1]
-					scoreChanged = true
-				}
+			// case "autoDockStatus":
+			// 	if args.TeamPosition >= 1 && args.TeamPosition <= 3 {
+			// 		score.AutoDockStatuses[args.TeamPosition-1] = !score.AutoDockStatuses[args.TeamPosition-1]
+			// 		scoreChanged = true
+			// 	}
 			case "endgameStatus":
 				if args.TeamPosition >= 1 && args.TeamPosition <= 3 {
 					score.EndgameStatuses[args.TeamPosition-1]++
@@ -138,39 +151,42 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 					}
 					scoreChanged = true
 				}
-			case "autoChargeStationLevel":
-				score.AutoChargeStationLevel = !score.AutoChargeStationLevel
-				scoreChanged = true
-			case "endgameChargeStationLevel":
-				score.EndgameChargeStationLevel = !score.EndgameChargeStationLevel
-				scoreChanged = true
-			case "gridAutoScoring":
-				if args.GridRow >= 0 && args.GridRow <= 2 && args.GridNode >= 0 && args.GridNode <= 8 {
-					score.Grid.AutoScoring[args.GridRow][args.GridNode] =
-						!score.Grid.AutoScoring[args.GridRow][args.GridNode]
-					scoreChanged = true
-				}
-			case "gridNode":
-				if args.GridRow >= 0 && args.GridRow <= 2 && args.GridNode >= 0 && args.GridNode <= 8 {
-					currentState := score.Grid.Nodes[args.GridRow][args.GridNode]
-					if currentState == args.NodeState {
-						score.Grid.Nodes[args.GridRow][args.GridNode] = game.Empty
-						if web.arena.MatchState == field.AutoPeriod || web.arena.MatchState == field.PausePeriod {
-							score.Grid.AutoScoring[args.GridRow][args.GridNode] = false
-						}
-					} else {
-						score.Grid.Nodes[args.GridRow][args.GridNode] = args.NodeState
-						if web.arena.MatchState == field.AutoPeriod || web.arena.MatchState == field.PausePeriod {
-							score.Grid.AutoScoring[args.GridRow][args.GridNode] = true
-						}
-					}
-					scoreChanged = true
-				}
+
+			// case "autoChargeStationLevel":
+			// 	score.AutoChargeStationLevel = !score.AutoChargeStationLevel
+			// 	scoreChanged = true
+			// case "endgameChargeStationLevel":
+			// 	score.EndgameChargeStationLevel = !score.EndgameChargeStationLevel
+			// 	scoreChanged = true
+			// case "gridAutoScoring":
+			// 	if args.GridRow >= 0 && args.GridRow <= 2 && args.GridNode >= 0 && args.GridNode <= 8 {
+			// 		score.Grid.AutoScoring[args.GridRow][args.GridNode] =
+			// 			!score.Grid.AutoScoring[args.GridRow][args.GridNode]
+			// 		scoreChanged = true
+			// 	}
+			// case "gridNode":
+			// 	if args.GridRow >= 0 && args.GridRow <= 2 && args.GridNode >= 0 && args.GridNode <= 8 {
+			// 		currentState := score.Grid.Nodes[args.GridRow][args.GridNode]
+			// 		if currentState == args.NodeState {
+			// 			score.Grid.Nodes[args.GridRow][args.GridNode] = game.Empty
+			// 			if web.arena.MatchState == field.AutoPeriod || web.arena.MatchState == field.PausePeriod {
+			// 				score.Grid.AutoScoring[args.GridRow][args.GridNode] = false
+			// 			}
+			// 		} else {
+			// 			score.Grid.Nodes[args.GridRow][args.GridNode] = args.NodeState
+			// 			if web.arena.MatchState == field.AutoPeriod || web.arena.MatchState == field.PausePeriod {
+			// 				score.Grid.AutoScoring[args.GridRow][args.GridNode] = true
+			// 			}
+			// 		}
+			// 		scoreChanged = true
+			// 	}
 			}
 
 			if scoreChanged {
 				web.arena.RealtimeScoreNotifier.Notify()
 			}
 		}
+
 	}
+
 }
