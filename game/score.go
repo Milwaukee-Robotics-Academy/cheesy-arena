@@ -6,12 +6,17 @@
 package game
 
 type Score struct {
-	MobilityStatuses          [3]bool
-	Grid                      Grid
-	AutoDockStatuses          [3]bool
-	AutoChargeStationLevel    bool
+	AutoLeaveStatuses			[3]bool
+	AutoAmpNotes			   	[3]AutoAmpNotes
+	AutoSpeakerNotes			[3]AutoSpeakerNotes
+	TeleopAmpNotes				[3]TeleopAmpNotes
+	TeleopSpeakerNotes			[3]TeleopSpeakerNotes
+	TeleopAmpedSpeakerNotes		[3]TeleopAmpedSpeakerNotes
+	TrapNotes					[3]TrapNotes
+//	Grid                      Grid
+//	AutoChargeStationLevel    bool
 	EndgameStatuses           [3]EndgameStatus
-	EndgameChargeStationLevel bool
+//	EndgameChargeStationLevel bool
 	Fouls                     []Foul
 	PlayoffDq                 bool
 }
@@ -20,13 +25,23 @@ var SustainabilityBonusLinkThresholdWithoutCoop = 6
 var SustainabilityBonusLinkThresholdWithCoop = 5
 var ActivationBonusPointThreshold = 26
 
+//represents scores in Auto
+type AutoAmpNotes int
+type AutoSpeakerNotes int
+
+//represents scores in teleop
+type TeleopAmpNotes int
+type TeleopSpeakerNotes int
+type TeleopAmpedSpeakerNotes int
 // Represents the state of a robot at the end of the match.
 type EndgameStatus int
 
 const (
 	EndgameNone EndgameStatus = iota
 	EndgameParked
-	EndgameDocked
+	EndgameOnstage
+	EndgameHarmony
+	EndgameNoteInTrap
 )
 
 // Calculates and returns the summary fields used for ranking and display.
@@ -39,9 +54,9 @@ func (score *Score) Summarize(opponentScore *Score) *ScoreSummary {
 	}
 
 	// Calculate autonomous period points.
-	for _, mobility := range score.MobilityStatuses {
+	for _, mobility := range score.AutoLeaveStatuses {
 		if mobility {
-			summary.MobilityPoints += 3
+			summary.MobilityPoints += 2
 		}
 	}
 	autoGridPoints := score.Grid.AutoGamePiecePoints()
@@ -122,7 +137,7 @@ func (score *Score) Summarize(opponentScore *Score) *ScoreSummary {
 
 // Returns true if and only if all fields of the two scores are equal.
 func (score *Score) Equals(other *Score) bool {
-	if score.MobilityStatuses != other.MobilityStatuses ||
+	if score.AutoLeaveStatuses != other.AutoLeaveStatuses ||
 		score.Grid != other.Grid ||
 		score.AutoDockStatuses != other.AutoDockStatuses ||
 		score.AutoChargeStationLevel != other.AutoChargeStationLevel ||

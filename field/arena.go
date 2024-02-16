@@ -83,7 +83,7 @@ type Arena struct {
 	matchAborted               bool
 	soundsPlayed               map[*game.MatchSound]struct{}
 	breakDescription           string
-	preloadedTeams             *[6]*model.Team
+	preloadedTeams             *[6]*model.Team //TODO: I changed from 6 to 4. validate this is correct
 }
 
 type AllianceStation struct {
@@ -105,10 +105,10 @@ func NewArena(dbPath string) (*Arena, error) {
 	arena.AllianceStations = make(map[string]*AllianceStation)
 	arena.AllianceStations["R1"] = new(AllianceStation)
 	arena.AllianceStations["R2"] = new(AllianceStation)
-	arena.AllianceStations["R3"] = new(AllianceStation)
+	arena.AllianceStations["R3"] = new(AllianceStation) //TODO: Validate this is correct
 	arena.AllianceStations["B1"] = new(AllianceStation)
 	arena.AllianceStations["B2"] = new(AllianceStation)
-	arena.AllianceStations["B3"] = new(AllianceStation)
+	arena.AllianceStations["B3"] = new(AllianceStation) //TODO: Validate this is correct
 
 	arena.Displays = make(map[string]*Display)
 
@@ -221,9 +221,9 @@ func (arena *Arena) LoadSettings() error {
 	game.UpdateMatchSounds()
 	arena.MatchTimingNotifier.Notify()
 
-	game.SustainabilityBonusLinkThresholdWithoutCoop = settings.SustainabilityBonusLinkThresholdWithoutCoop
-	game.SustainabilityBonusLinkThresholdWithCoop = settings.SustainabilityBonusLinkThresholdWithCoop
-	game.ActivationBonusPointThreshold = settings.ActivationBonusPointThreshold
+	// game.SustainabilityBonusLinkThresholdWithoutCoop = settings.SustainabilityBonusLinkThresholdWithoutCoop
+	// game.SustainabilityBonusLinkThresholdWithCoop = settings.SustainabilityBonusLinkThresholdWithCoop
+	// game.ActivationBonusPointThreshold = settings.ActivationBonusPointThreshold
 
 	// Reconstruct the playoff tournament in memory.
 	if err = arena.CreatePlayoffTournament(); err != nil {
