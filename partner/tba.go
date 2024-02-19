@@ -11,13 +11,14 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/Team254/cheesy-arena/game"
-	"github.com/Team254/cheesy-arena/model"
-	"github.com/mitchellh/mapstructure"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"github.com/Team254/cheesy-arena/game"
+	"github.com/Team254/cheesy-arena/model"
+	"github.com/mitchellh/mapstructure"
 )
 
 const (
@@ -401,7 +402,7 @@ func (client *TbaClient) PublishRankings(database *model.Database) error {
 			Rank:          ranking.Rank,
 			RP:            float32(ranking.RankingPoints) / float32(ranking.Played),
 			Match:         float32(ranking.MatchPoints) / float32(ranking.Played),
-			ChargeStation: float32(ranking.ChargeStationPoints) / float32(ranking.Played),
+			ChargeStation: float32(ranking.StagePoints) / float32(ranking.Played),
 			Auto:          float32(ranking.AutoPoints) / float32(ranking.Played),
 			Wins:          ranking.Wins,
 			Losses:        ranking.Losses,

@@ -8,17 +8,17 @@ package game
 import "math/rand"
 
 type RankingFields struct {
-	RankingPoints       int
-	CoopertitionBonus	int
-	MatchPoints         int
-	ChargeStationPoints int
-	AutoPoints          int
-	Random              float64
-	Wins                int
-	Losses              int
-	Ties                int
-	Disqualifications   int
-	Played              int
+	RankingPoints     int
+	CoopertitionBonus int
+	MatchPoints       int
+	StagePoints       int
+	AutoPoints        int
+	Random            float64
+	Wins              int
+	Losses            int
+	Ties              int
+	Disqualifications int
+	Played            int
 }
 
 type Ranking struct {
@@ -56,8 +56,12 @@ func (fields *RankingFields) AddScoreSummary(ownScore *ScoreSummary, opponentSco
 
 	// Assign tiebreaker points.
 	fields.MatchPoints += ownScore.MatchPoints
-	fields.ChargeStationPoints += ownScore.ChargeStationPoints
+	fields.StagePoints += ownScore.EndStagePoints
 	fields.AutoPoints += ownScore.AutoPoints
+	if ownScore.CoopertitionBonus {
+		fields.CoopertitionBonus++
+	}
+
 }
 
 // Helper function to implement the required interface for Sort.
@@ -72,16 +76,19 @@ func (rankings Rankings) Less(i, j int) bool {
 
 	// Use cross-multiplication to keep it in integer math.
 	if a.RankingPoints*b.Played == b.RankingPoints*a.Played {
-		if a.MatchPoints*b.Played == b.MatchPoints*a.Played {
-			if a.ChargeStationPoints*b.Played == b.ChargeStationPoints*a.Played {
+		if a.CoopertitionBonus*b.Played == b.CoopertitionBonus*a.Played {
+			if a.MatchPoints*b.Played == b.MatchPoints*a.Played {
 				if a.AutoPoints*b.Played == b.AutoPoints*a.Played {
-					return a.Random > b.Random
+					if a.StagePoints*b.Played == b.StagePoints*a.Played {
+						return a.Random > b.Random
+					}
+					return a.StagePoints*b.Played > b.StagePoints*a.Played
 				}
 				return a.AutoPoints*b.Played > b.AutoPoints*a.Played
 			}
-			return a.ChargeStationPoints*b.Played > b.ChargeStationPoints*a.Played
+			return a.MatchPoints*b.Played > b.MatchPoints*a.Played
 		}
-		return a.MatchPoints*b.Played > b.MatchPoints*a.Played
+		return a.CoopertitionBonus*b.Played > b.CoopertitionBonus*a.Played
 	}
 	return a.RankingPoints*b.Played > b.RankingPoints*a.Played
 }
