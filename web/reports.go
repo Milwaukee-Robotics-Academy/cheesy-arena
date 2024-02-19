@@ -81,9 +81,9 @@ func (web *Web) rankingsPdfReportHandler(w http.ResponseWriter, r *http.Request)
 		pdf.CellFormat(colWidths["Team"], rowHeight, strconv.Itoa(ranking.TeamId), "1", 0, "C", false, 0, "")
 		pdf.CellFormat(colWidths["RP"], rowHeight, strconv.Itoa(ranking.RankingPoints), "1", 0, "C", false, 0, "")
 		pdf.CellFormat(colWidths["Match"], rowHeight, strconv.Itoa(ranking.MatchPoints), "1", 0, "C", false, 0, "")
-		// pdf.CellFormat(
-		// 	colWidths["Charge Stn."], rowHeight, strconv.Itoa(ranking.ChargeStationPoints), "1", 0, "C", false, 0, "",
-		// )
+		pdf.CellFormat(
+			colWidths["Charge Stn."], rowHeight, strconv.Itoa(ranking.ChargeStationPoints), "1", 0, "C", false, 0, "",
+		)
 		pdf.CellFormat(colWidths["Auto"], rowHeight, strconv.Itoa(ranking.AutoPoints), "1", 0, "C", false, 0, "")
 		record := fmt.Sprintf("%d-%d-%d", ranking.Wins, ranking.Losses, ranking.Ties)
 		pdf.CellFormat(colWidths["W-L-T"], rowHeight, record, "1", 0, "C", false, 0, "")

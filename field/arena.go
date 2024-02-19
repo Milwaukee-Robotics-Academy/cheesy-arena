@@ -83,7 +83,7 @@ type Arena struct {
 	matchAborted               bool
 	soundsPlayed               map[*game.MatchSound]struct{}
 	breakDescription           string
-	preloadedTeams             *[6]*model.Team //TODO: I changed from 6 to 4. validate this is correct
+	preloadedTeams             *[6]*model.Team
 }
 
 type AllianceStation struct {
@@ -105,10 +105,10 @@ func NewArena(dbPath string) (*Arena, error) {
 	arena.AllianceStations = make(map[string]*AllianceStation)
 	arena.AllianceStations["R1"] = new(AllianceStation)
 	arena.AllianceStations["R2"] = new(AllianceStation)
-	arena.AllianceStations["R3"] = new(AllianceStation) //TODO: Validate this is correct
+	arena.AllianceStations["R3"] = new(AllianceStation)
 	arena.AllianceStations["B1"] = new(AllianceStation)
 	arena.AllianceStations["B2"] = new(AllianceStation)
-	arena.AllianceStations["B3"] = new(AllianceStation) //TODO: Validate this is correct
+	arena.AllianceStations["B3"] = new(AllianceStation)
 
 	arena.Displays = make(map[string]*Display)
 
@@ -221,9 +221,9 @@ func (arena *Arena) LoadSettings() error {
 	game.UpdateMatchSounds()
 	arena.MatchTimingNotifier.Notify()
 
-	// game.SustainabilityBonusLinkThresholdWithoutCoop = settings.SustainabilityBonusLinkThresholdWithoutCoop
-	// game.SustainabilityBonusLinkThresholdWithCoop = settings.SustainabilityBonusLinkThresholdWithCoop
-	// game.ActivationBonusPointThreshold = settings.ActivationBonusPointThreshold
+	game.SustainabilityBonusLinkThresholdWithoutCoop = settings.SustainabilityBonusLinkThresholdWithoutCoop
+	game.SustainabilityBonusLinkThresholdWithCoop = settings.SustainabilityBonusLinkThresholdWithCoop
+	game.ActivationBonusPointThreshold = settings.ActivationBonusPointThreshold
 
 	// Reconstruct the playoff tournament in memory.
 	if err = arena.CreatePlayoffTournament(); err != nil {
@@ -923,9 +923,68 @@ func (arena *Arena) getAssignedAllianceStation(teamId int) string {
 	return ""
 }
 
+var startAmplificationRed = false
+var startTimeRed = time.Now()
+var startAmplificationBlue = false
+var startTimeBlue = time.Now()
+
 // Updates the score given new input information from the field PLC, and actuates PLC outputs accordingly.
 func (arena *Arena) handlePlcInputOutput() {
 	if !arena.Plc.IsEnabled() {
+		redScore := &arena.RedRealtimeScore.CurrentScore
+		blueScore := &arena.BlueRealtimeScore.CurrentScore
+		
+		if redScore.AmplificationActive{
+			if !startAmplificationRed{
+				startTimeRed = time.Now()
+				startAmplificationRed = true
+				redScore.AmpAccumulatorDisable = true
+				redScore.TeleopSpeaderNotesAmplifiedLimitCount = 0
+				arena.RealtimeScoreNotifier.Notify()
+				log.Println("******Start Red Amplification*******")
+			}else{
+				redScore.AmplificationSecRemaining = 130 - (int(time.Since(startTimeRed))/100000000) 		
+			}
+			if time.Since(startTimeRed) >= 10 * time.Second{
+				redScore.AmpAccumulatorDisable = false
+				arena.RealtimeScoreNotifier.Notify()
+			}
+			if time.Since(startTimeRed) >= 13 * time.Second || redScore.TeleopSpeaderNotesAmplifiedLimitCount >= 4{
+				log.Println("******End Red Amplification*******")
+				//refresh the scoring panel
+				redScore.AmpAccumulatorDisable = false
+				redScore.AmplificationActive = false
+				arena.RealtimeScoreNotifier.Notify()
+			}
+		}else{
+			startAmplificationRed = false
+		}
+		
+		if blueScore.AmplificationActive{
+			if !startAmplificationBlue{
+				startTimeBlue = time.Now()
+				startAmplificationBlue = true
+				blueScore.AmpAccumulatorDisable = true
+				blueScore.TeleopSpeaderNotesAmplifiedLimitCount = 0
+				arena.RealtimeScoreNotifier.Notify()
+				log.Println("******Start Blue Amplification*******")
+			}else{
+				blueScore.AmplificationSecRemaining = 130 - (int(time.Since(startTimeBlue))/100000000)
+			}
+			if time.Since(startTimeBlue) >= 10 * time.Second{
+				blueScore.AmpAccumulatorDisable = false
+				arena.RealtimeScoreNotifier.Notify()
+			}
+			if time.Since(startTimeBlue) >= 13 * time.Second || blueScore.TeleopSpeaderNotesAmplifiedLimitCount >= 4{
+				log.Println("******End Blue Amplification*******")
+				//refresh the scoring panel
+				blueScore.AmpAccumulatorDisable = false
+				blueScore.AmplificationActive = false
+				arena.RealtimeScoreNotifier.Notify()
+			}
+		}else{
+			startAmplificationBlue = false
+		}
 		return
 	}
 
@@ -954,8 +1013,8 @@ func (arena *Arena) handlePlcInputOutput() {
 	teleopGracePeriod := matchStartTime.Add(game.GetDurationToTeleopEnd() + game.ChargeStationTeleopGracePeriod)
 	inGracePeriod := currentTime.Before(teleopGracePeriod)
 
-    // redScore := &arena.RedRealtimeScore.CurrentScore
-    // blueScore := &arena.BlueRealtimeScore.CurrentScore
+	redScore := &arena.RedRealtimeScore.CurrentScore
+	blueScore := &arena.BlueRealtimeScore.CurrentScore
 	redChargeStationLevel, blueChargeStationLevel := arena.Plc.GetChargeStationsLevel()
 	redAllianceReady := arena.checkAllianceStationsReady("R1", "R2", "R3") == nil
 	blueAllianceReady := arena.checkAllianceStationsReady("B1", "B2", "B3") == nil
@@ -1001,9 +1060,9 @@ func (arena *Arena) handlePlcInputOutput() {
 		if arena.lastMatchState != PostMatch {
 			go func() {
 				// Capture a single reading of the charge station levels after the grace period following the match.
-				// time.Sleep(game.ChargeStationTeleopGracePeriod)
-				// redScore.EndgameChargeStationLevel, blueScore.EndgameChargeStationLevel =
-				// 	arena.Plc.GetChargeStationsLevel()
+				time.Sleep(game.ChargeStationTeleopGracePeriod)
+				redScore.EndgameChargeStationLevel, blueScore.EndgameChargeStationLevel =
+					arena.Plc.GetChargeStationsLevel()
 				arena.RealtimeScoreNotifier.Notify()
 			}()
 		}
@@ -1019,8 +1078,8 @@ func (arena *Arena) handlePlcInputOutput() {
 		arena.Plc.SetChargeStationLights(redChargeStationLevel, blueChargeStationLevel)
 		arena.Plc.SetStackLights(!redAllianceReady, !blueAllianceReady, false, true)
 		if arena.lastMatchState != TeleopPeriod {
-		// 	// Capture a single reading of the charge station levels after the autonomous pause.
-		// 	redScore.AutoChargeStationLevel, blueScore.AutoChargeStationLevel = arena.Plc.GetChargeStationsLevel()
+			// Capture a single reading of the charge station levels after the autonomous pause.
+			redScore.AutoChargeStationLevel, blueScore.AutoChargeStationLevel = arena.Plc.GetChargeStationsLevel()
 			arena.RealtimeScoreNotifier.Notify()
 		}
 	}

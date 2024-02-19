@@ -56,12 +56,35 @@ const handleRealtimeScore = function(data) {
     $("#autoDockStatus" + i1).attr("data-value", score.AutoDockStatuses[i]);
     $("#endgameStatus" + i1 + ">.value").text(getEndgameStatusText(score.EndgameStatuses[i]));
     $("#endgameStatus" + i1).attr("data-value", score.EndgameStatuses[i]);
+    $("#stageStatus" + i1 + ">.value").text(getStageStatusText(score.StageStatuses[i]));
+    $("#stageStatus" + i1).attr("data-value", score.StageStatuses[i]);
+    $(`#harmonyStatus${i1}>.value`).text(score.HarmonyStatuses[i] ? "Yes" : "No");
+    $("#harmonyStatus" + i1).attr("data-value", score.HarmonyStatuses[i]);
+    
+    $(`#coopertitionStatus>.value`).text(score.CoopertitionStatus ? "Cooperation Enabled" : "Cooperation");
+    $("#coopertitionStatus").attr("data-value", score.CoopertitionStatus);
+    $(`#amplificationActive>.value`).text(score.AmplificationActive ? "Amplification Active" : "Amplification");
+    $("#amplificationActive").attr("data-value", score.AmplificationActive);
+    $("#amplificationActive").css("background-color", !score.AmpAccumulatorDisable && score.AmplificationActive ? "yellow" : "");
+    $("#amplificationActive").css("color", !score.AmpAccumulatorDisable && score.AmplificationActive ? "black" : "");
   }
 
   $("#autoChargeStationLevel>.value").text(score.AutoChargeStationLevel ? "Level" : "Not Level");
   $("#autoChargeStationLevel").attr("data-value", score.AutoChargeStationLevel);
   $("#endgameChargeStationLevel>.value").text(score.EndgameChargeStationLevel ? "Level" : "Not Level");
   $("#endgameChargeStationLevel").attr("data-value", score.EndgameChargeStationLevel);
+
+  $("#currentScore").text("Current Score: " + realtimeScore.ScoreSummary.Score);
+  $("#currentAmpificationCount").text("Ampification Count: " + score.AmplificationCount);
+  $("#ampCount").text("Amp Total Count: " + (score.AutoAmpNotes + score.TeleopAmpNotes));
+  $("#teleopAmpCount").text(score.TeleopAmpNotes);
+  $("#autoAmpCount").text(score.AutoAmpNotes);
+  $("#speakerCount").text("Speaker Total Count: " + (score.AutoSpeakerNotes + score.TeleopSpeakerNotesNotAmplified + score.TeleopSpeakerNotesAmplified));
+  $("#autoSpeakerCount").text(score.AutoSpeakerNotes);
+  $("#teleopSpeakerCountNotAmplified").text(score.TeleopSpeakerNotesNotAmplified);
+  $("#teleopSpeakerCountAmplified").text(score.TeleopSpeakerNotesAmplified);
+  $("#trapCount1").text((score.TrapNotes));
+  $("#trapCount").text("Trap Count: " + (score.TrapNotes));
 
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 9; j++) {
@@ -74,6 +97,10 @@ const handleRealtimeScore = function(data) {
   }
 };
 
+// Handles a keyboard event and sends the appropriate websocket message.
+var handleKeyPress = function(event) {
+  websocket.send(String.fromCharCode(event.keyCode));
+};
 // Handles an element click and sends the appropriate websocket message.
 const handleClick = function(command, teamPosition = 0, gridRow = 0, gridNode = 0, nodeState = 0) {
   websocket.send(command, {TeamPosition: teamPosition, GridRow: gridRow, GridNode: gridNode, NodeState: nodeState});
@@ -97,6 +124,18 @@ const getEndgameStatusText = function(level) {
       return "None";
   }
 };
+const getStageStatusText = function(level) {
+  switch (level) {
+    case 1:
+      return "Park";
+    case 2:
+      return "Onstage";
+    case 3:
+      return "Spotlight";
+    default:
+      return "None";
+  }
+};
 
 $(function() {
   alliance = window.location.href.split("/").slice(-1)[0];
@@ -108,4 +147,5 @@ $(function() {
     matchTime: function(event) { handleMatchTime(event.data); },
     realtimeScore: function(event) { handleRealtimeScore(event.data); },
   });
+  $(document).keypress(handleKeyPress);
 });

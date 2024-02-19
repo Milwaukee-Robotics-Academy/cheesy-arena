@@ -8,37 +8,40 @@ package game
 type ScoreSummary struct {
 	MobilityPoints                  int
 	AutoPoints                      int
-	//GridPoints                      int
-	NotesPoints						int
-	//ChargeStationPoints             int
+	GridPoints                      int
+	ChargeStationPoints             int
 	ParkPoints                      int
 	EndgamePoints                   int
 	MatchPoints                     int
 	FoulPoints                      int
 	Score                           int
-	MelodyBonus 		            bool
-	EnsambleBonus					bool
-	// NumLinks                        int
-	// NumLinksGoal                    int
-	// SustainabilityBonusRankingPoint bool
-	// ActivationBonusRankingPoint     bool
+	CoopertitionBonus               bool
+	NumLinks                        int
+	NumLinksGoal                    int
+	SustainabilityBonusRankingPoint bool
+	ActivationBonusRankingPoint     bool
 	BonusRankingPoints              int
 	NumOpponentTechFouls            int
+	AmplificationCount				int
+	AutoAmpPoints					int
+	AmpPoints						int
+	AutoSpeakerPoints				int
+	SpeakerPoints					int
+	AmplifiedPoints					int
+	TrapPoints						int
+	OnstagePoints					int
+	RobotsOnstage					int
+	HarmonyPoints					int
+	EndStagePoints					int
+	CoopertitionStatus				bool
+	AmplificationActive				bool
+	AmpAccumulatorDisable			bool
+	MelodyRankingPoint				bool
+	EmsembleRankingPoint			bool
+	NumSpeakers                        int
+	NumSpeakersGoal                    int
+	TotalNotes						int
 }
-
-// AutoLeaveStatuses			[3]bool
-// AutoAmpNotes			   	[3]AutoAmpNotes
-// AutoSpeakerNotes			[3]AutoSpeakerNotes
-// TeleopAmpNotes				[3]TeleopAmpNotes
-// TeleopSpeakerNotes			[3]TeleopSpeakerNotes
-// TeleopAmpedSpeakerNotes		[3]TeleopAmpedSpeakerNotes
-// TrapNotes					[3]TrapNotes
-// //	Grid                      Grid
-// //	AutoChargeStationLevel    bool
-// EndgameStatuses           [3]EndgameStatus
-// //	EndgameChargeStationLevel bool
-// Fouls                     []Foul
-// PlayoffDq                 bool
 
 type MatchStatus int
 
@@ -64,6 +67,11 @@ func DetermineMatchStatus(redScoreSummary, blueScoreSummary *ScoreSummary, apply
 		// Check scoring breakdowns to resolve playoff ties.
 		if status := comparePoints(
 			redScoreSummary.NumOpponentTechFouls, blueScoreSummary.NumOpponentTechFouls,
+		); status != TieMatch {
+			return status
+		}
+		if status := comparePoints(
+			redScoreSummary.ChargeStationPoints, blueScoreSummary.ChargeStationPoints,
 		); status != TieMatch {
 			return status
 		}
