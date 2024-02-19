@@ -501,10 +501,10 @@ func (arena *Arena) ResetMatch() error {
 	arena.matchAborted = false
 	arena.AllianceStations["R1"].Bypass = false
 	arena.AllianceStations["R2"].Bypass = false
-	arena.AllianceStations["R3"].Bypass = false
+	arena.AllianceStations["R3"].Bypass = true
 	arena.AllianceStations["B1"].Bypass = false
 	arena.AllianceStations["B2"].Bypass = false
-	arena.AllianceStations["B3"].Bypass = false
+	arena.AllianceStations["B3"].Bypass = true
 	arena.MuteMatchSounds = false
 	return nil
 }
@@ -933,56 +933,56 @@ func (arena *Arena) handlePlcInputOutput() {
 	if !arena.Plc.IsEnabled() {
 		redScore := &arena.RedRealtimeScore.CurrentScore
 		blueScore := &arena.BlueRealtimeScore.CurrentScore
-		
-		if redScore.AmplificationActive{
-			if !startAmplificationRed{
+
+		if redScore.AmplificationActive {
+			if !startAmplificationRed {
 				startTimeRed = time.Now()
 				startAmplificationRed = true
 				redScore.AmpAccumulatorDisable = true
 				redScore.TeleopSpeaderNotesAmplifiedLimitCount = 0
 				arena.RealtimeScoreNotifier.Notify()
 				log.Println("******Start Red Amplification*******")
-			}else{
-				redScore.AmplificationSecRemaining = 130 - (int(time.Since(startTimeRed))/100000000) 		
+			} else {
+				redScore.AmplificationSecRemaining = 130 - (int(time.Since(startTimeRed)) / 100000000)
 			}
-			if time.Since(startTimeRed) >= 10 * time.Second{
+			if time.Since(startTimeRed) >= 10*time.Second {
 				redScore.AmpAccumulatorDisable = false
 				arena.RealtimeScoreNotifier.Notify()
 			}
-			if time.Since(startTimeRed) >= 13 * time.Second || redScore.TeleopSpeaderNotesAmplifiedLimitCount >= 4{
+			if time.Since(startTimeRed) >= 13*time.Second || redScore.TeleopSpeaderNotesAmplifiedLimitCount >= 4 {
 				log.Println("******End Red Amplification*******")
 				//refresh the scoring panel
 				redScore.AmpAccumulatorDisable = false
 				redScore.AmplificationActive = false
 				arena.RealtimeScoreNotifier.Notify()
 			}
-		}else{
+		} else {
 			startAmplificationRed = false
 		}
-		
-		if blueScore.AmplificationActive{
-			if !startAmplificationBlue{
+
+		if blueScore.AmplificationActive {
+			if !startAmplificationBlue {
 				startTimeBlue = time.Now()
 				startAmplificationBlue = true
 				blueScore.AmpAccumulatorDisable = true
 				blueScore.TeleopSpeaderNotesAmplifiedLimitCount = 0
 				arena.RealtimeScoreNotifier.Notify()
 				log.Println("******Start Blue Amplification*******")
-			}else{
-				blueScore.AmplificationSecRemaining = 130 - (int(time.Since(startTimeBlue))/100000000)
+			} else {
+				blueScore.AmplificationSecRemaining = 130 - (int(time.Since(startTimeBlue)) / 100000000)
 			}
-			if time.Since(startTimeBlue) >= 10 * time.Second{
+			if time.Since(startTimeBlue) >= 10*time.Second {
 				blueScore.AmpAccumulatorDisable = false
 				arena.RealtimeScoreNotifier.Notify()
 			}
-			if time.Since(startTimeBlue) >= 13 * time.Second || blueScore.TeleopSpeaderNotesAmplifiedLimitCount >= 4{
+			if time.Since(startTimeBlue) >= 13*time.Second || blueScore.TeleopSpeaderNotesAmplifiedLimitCount >= 4 {
 				log.Println("******End Blue Amplification*******")
 				//refresh the scoring panel
 				blueScore.AmpAccumulatorDisable = false
 				blueScore.AmplificationActive = false
 				arena.RealtimeScoreNotifier.Notify()
 			}
-		}else{
+		} else {
 			startAmplificationBlue = false
 		}
 		return

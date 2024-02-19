@@ -25,11 +25,6 @@
               <div id="leftTeam3"></div>
             </div>
             <div class="score reversible-left">
-              <div class="avatars">
-                <img class="avatar" id="leftTeam1Avatar" src="" />
-                <img class="avatar" id="leftTeam2Avatar" src="" />
-                <img class="avatar" id="leftTeam3Avatar" src="" />
-              </div>
               <div class="score-fields">
                 <div class="coopStatus">
                   Coop Status
@@ -67,11 +62,6 @@
                   Amp Count
                   <span id="rightAmpCount"></span>
                 </div>
-              </div>
-              <div class="avatars">
-                <img class="avatar" id="rightTeam1Avatar" src="" />
-                <img class="avatar" id="rightTeam2Avatar" src="" />
-                <img class="avatar" id="rightTeam3Avatar" src="" />
               </div>
             </div>
             <div class="teams" id="rightTeams">
@@ -124,7 +114,6 @@
                 <div class="final-alliance playoff-only-field" id="leftFinalAlliance"></div>
                 {{range $i := seq 4}}
                   <div class="final-team-row">
-                    <img class="final-team-avatar" id="leftFinalTeam{{$i}}Avatar" src="" />
                     <div class="final-team-number" id="leftFinalTeam{{$i}}"></div>
                     <div class="final-team-rank">
                       <img id="leftFinalTeam{{$i}}RankIndicator" src="" />
@@ -199,7 +188,6 @@
                 <div class="final-alliance playoff-only-field" id="rightFinalAlliance"></div>
                 {{range $i := seq 4}}
                   <div class="final-team-row">
-                    <img class="final-team-avatar" id="rightFinalTeam{{$i}}Avatar" src="" />
                     <div class="final-team-number" id="rightFinalTeam{{$i}}"></div>
                     <div class="final-team-rank">
                       <img id="rightFinalTeam{{$i}}RankIndicator" src="" />
