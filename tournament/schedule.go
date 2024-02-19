@@ -8,18 +8,19 @@ package tournament
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/Team254/cheesy-arena/model"
 	"math"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/Team254/cheesy-arena/model"
 )
 
 const (
 	schedulesDir  = "schedules"
-	TeamsPerMatch = 6
+	TeamsPerMatch = 4
 )
 
 // Creates a random schedule for the given parameters and returns it as a list of matches.
@@ -50,9 +51,9 @@ func BuildRandomSchedule(
 	}
 
 	// Convert string fields from schedule to integers.
-	anonSchedule := make([][12]int, numMatches)
+	anonSchedule := make([][8]int, numMatches)
 	for i := 0; i < numMatches; i++ {
-		for j := 0; j < 12; j++ {
+		for j := 0; j < 8; j++ {
 			anonSchedule[i][j], err = strconv.Atoi(csvLines[i][j])
 			if err != nil {
 				return nil, err
@@ -81,14 +82,14 @@ func BuildRandomSchedule(
 		matches[i].Red1IsSurrogate = anonMatch[1] == 1
 		matches[i].Red2 = teams[teamShuffle[anonMatch[2]-1]].Id
 		matches[i].Red2IsSurrogate = anonMatch[3] == 1
-		matches[i].Red3 = teams[teamShuffle[anonMatch[4]-1]].Id
-		matches[i].Red3IsSurrogate = anonMatch[5] == 1
-		matches[i].Blue1 = teams[teamShuffle[anonMatch[6]-1]].Id
-		matches[i].Blue1IsSurrogate = anonMatch[7] == 1
-		matches[i].Blue2 = teams[teamShuffle[anonMatch[8]-1]].Id
-		matches[i].Blue2IsSurrogate = anonMatch[9] == 1
-		matches[i].Blue3 = teams[teamShuffle[anonMatch[10]-1]].Id
-		matches[i].Blue3IsSurrogate = anonMatch[11] == 1
+		matches[i].Red3 = 0
+		matches[i].Red3IsSurrogate = true
+		matches[i].Blue1 = teams[teamShuffle[anonMatch[4]-1]].Id
+		matches[i].Blue1IsSurrogate = anonMatch[5] == 1
+		matches[i].Blue2 = teams[teamShuffle[anonMatch[6]-1]].Id
+		matches[i].Blue2IsSurrogate = anonMatch[7] == 1
+		matches[i].Blue3 = 0
+		matches[i].Blue3IsSurrogate = true
 		matches[i].TbaMatchKey.MatchNumber = i + 1
 	}
 

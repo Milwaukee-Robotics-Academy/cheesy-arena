@@ -64,10 +64,10 @@ func (database *Database) GetEventSettings() (*EventSettings, error) {
 	eventSettings := EventSettings{
 		Name:                        "Untitled Event",
 		PlayoffType:                 DoubleEliminationPlayoff,
-		NumPlayoffAlliances:         8,
+		NumPlayoffAlliances:         3,
 		SelectionRound2Order:        "L",
 		SelectionRound3Order:        "",
-		TbaDownloadEnabled:          true,
+		TbaDownloadEnabled:          false,
 		ApType:                      "linksys",
 		ApTeamChannel:               157,
 		Ap2TeamChannel:              0,
