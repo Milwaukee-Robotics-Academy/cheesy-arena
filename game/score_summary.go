@@ -22,25 +22,25 @@ type ScoreSummary struct {
 	ActivationBonusRankingPoint     bool
 	BonusRankingPoints              int
 	NumOpponentTechFouls            int
-	AmplificationCount				int
-	AutoAmpPoints					int
-	AmpPoints						int
-	AutoSpeakerPoints				int
-	SpeakerPoints					int
-	AmplifiedPoints					int
-	TrapPoints						int
-	OnstagePoints					int
-	RobotsOnstage					int
-	HarmonyPoints					int
-	EndStagePoints					int
-	CoopertitionStatus				bool
-	AmplificationActive				bool
-	AmpAccumulatorDisable			bool
-	MelodyRankingPoint				bool
-	EmsembleRankingPoint			bool
-	NumSpeakers                        int
-	NumSpeakersGoal                    int
-	TotalNotes						int
+	AmplificationCount              int
+	AutoAmpPoints                   int
+	AmpPoints                       int
+	AutoSpeakerPoints               int
+	SpeakerPoints                   int
+	AmplifiedPoints                 int
+	TrapPoints                      int
+	OnstagePoints                   int
+	RobotsOnstage                   int
+	HarmonyPoints                   int
+	EndStagePoints                  int
+	CoopertitionStatus              bool
+	AmplificationActive             bool
+	AmpAccumulatorDisable           bool
+	MelodyRankingPoint              bool
+	EmsembleRankingPoint            bool
+	NumSpeakers                     int
+	NumSpeakersGoal                 int
+	TotalNotes                      int
 }
 
 type MatchStatus int
@@ -71,11 +71,13 @@ func DetermineMatchStatus(redScoreSummary, blueScoreSummary *ScoreSummary, apply
 			return status
 		}
 		if status := comparePoints(
-			redScoreSummary.ChargeStationPoints, blueScoreSummary.ChargeStationPoints,
+			redScoreSummary.AutoPoints, blueScoreSummary.AutoPoints,
 		); status != TieMatch {
 			return status
 		}
-		if status := comparePoints(redScoreSummary.AutoPoints, blueScoreSummary.AutoPoints); status != TieMatch {
+		if status := comparePoints(
+			redScoreSummary.EndStagePoints, blueScoreSummary.EndStagePoints,
+		); status != TieMatch {
 			return status
 		}
 	}
