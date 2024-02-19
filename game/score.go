@@ -29,6 +29,12 @@ type Score struct {
 	EndgameChargeStationLevel bool
 	Fouls                     []Foul
 	PlayoffDq                 bool
+	ForceEnsembleTrue         bool
+	ForceEnsembleFalse        bool
+	ForceMelodyTrue           bool
+	ForceMelodyFalse          bool
+	ForceCoopTrue             bool
+	ForceCoopFalse            bool
 }
 
 var SustainabilityBonusLinkThresholdWithoutCoop = 6
@@ -206,9 +212,22 @@ func (score *Score) Summarize(opponentScore *Score) *ScoreSummary {
 		summary.EmsembleRankingPoint = false
 	}
 
+	if score.ForceEnsembleTrue {
+		summary.EmsembleRankingPoint = true
+	}
+	if score.ForceEnsembleFalse {
+		summary.EmsembleRankingPoint = false
+	}
+
 	// Calculate bonus ranking points.
 	summary.CoopertitionBonus = score.CoopertitionStatus &&
 		opponentScore.CoopertitionStatus
+	if score.ForceCoopTrue {
+		summary.CoopertitionBonus = true
+	}
+	if score.ForceCoopFalse {
+		summary.CoopertitionBonus = false
+	}
 	summary.NumSpeakers = score.AutoSpeakerNotes +
 		score.TeleopSpeakerNotesNotAmplified +
 		score.TeleopSpeakerNotesAmplified
@@ -219,6 +238,13 @@ func (score *Score) Summarize(opponentScore *Score) *ScoreSummary {
 	}
 	if summary.NumSpeakers >= summary.NumSpeakersGoal {
 		summary.MelodyRankingPoint = true
+	}
+
+	if score.ForceMelodyTrue {
+		summary.MelodyRankingPoint = true
+	}
+	if score.ForceMelodyFalse {
+		summary.MelodyRankingPoint = false
 	}
 	//summary.ActivationBonusRankingPoint = summary.ChargeStationPoints >= ActivationBonusPointThreshold
 

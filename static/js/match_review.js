@@ -31,21 +31,19 @@ const renderResults = function(alliance) {
   $("#" + alliance + "Score").html(scoreContent);
 
   // Set the values of the form fields from the JSON results data.
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 2; i++) {
     const i1 = i + 1;
 
     getInputElement(alliance, "MobilityStatuses" + i1).prop("checked", result.score.MobilityStatuses[i]);
-    getInputElement(alliance, "AutoDockStatuses" + i1).prop("checked", result.score.AutoDockStatuses[i]);
-    getInputElement(alliance, "EndgameStatuses" + i1, result.score.EndgameStatuses[i]).prop("checked", true);
-
-    for (let j = 0; j < 9; j++) {
-      getInputElement(alliance, `GridAutoScoringRow${i}Node${j}`).prop("checked", result.score.Grid.AutoScoring[i][j]);
-      getSelectElement(alliance, `GridNodeStatesRow${i}Node${j}`).val(result.score.Grid.Nodes[i][j]);
-    }
+    getInputElement(alliance, "HarmonyStatuses" + i1).prop("checked", result.score.HarmonyStatuses[i]);
+    getInputElement(alliance, "StageStatuses" + i1, result.score.StageStatuses[i]).prop("checked", true);
   }
 
-  getInputElement(alliance, "AutoChargeStationLevel").prop("checked", result.score.AutoChargeStationLevel);
-  getInputElement(alliance, "EndgameChargeStationLevel").prop("checked", result.score.EndgameChargeStationLevel);
+  getInputElement(alliance, "NotesAuto_Speaker").val(result.score.AutoSpeakerNotes);
+  getInputElement(alliance, "NotesAuto_Amp").val(result.score.AutoAmpNotes);
+  getInputElement(alliance, "NotesSpeaker").val(result.score.TeleopSpeakerNotesNotAmplified);
+  getInputElement(alliance, "NotesAmp").val(result.score.TeleopAmpNotes);
+  getInputElement(alliance, "NotesAmplified_In_Speaker").val(result.score.TeleopSpeakerNotesAmplified);
 
   if (result.score.Fouls != null) {
     $.each(result.score.Fouls, function(k, v) {
@@ -54,6 +52,13 @@ const renderResults = function(alliance) {
       getSelectElement(alliance, "Foul" + k + "RuleId").val(v.RuleId);
     });
   }
+
+  getInputElement(alliance, "ForceEnsembleTrue").prop("checked", result.score.ForceEnsembleTrue);
+  getInputElement(alliance, "ForceEnsembleFalse").prop("checked", result.score.ForceEnsembleFalse);
+  getInputElement(alliance, "ForceMelodyTrue").prop("checked", result.score.ForceMelodyTrue);
+  getInputElement(alliance, "ForceMelodyFalse").prop("checked", result.score.ForceMelodyFalse);
+  getInputElement(alliance, "ForceCoopTrue").prop("checked", result.score.ForceCoopTrue);
+  getInputElement(alliance, "ForceCoopFalse").prop("checked", result.score.ForceCoopFalse);
 
   if (result.cards != null) {
     $.each(result.cards, function(k, v) {
@@ -78,19 +83,25 @@ const updateResults = function(alliance) {
     const i1 = i + 1;
 
     result.score.MobilityStatuses[i] = formData[alliance + "MobilityStatuses" + i1] === "on";
-    result.score.AutoDockStatuses[i] = formData[alliance + "AutoDockStatuses" + i1] === "on";
-    result.score.EndgameStatuses[i] = parseInt(formData[alliance + "EndgameStatuses" + i1]);
+    result.score.HarmonyStatuses[i] = formData[alliance + "HarmonyStatuses" + i1] === "on";
+    result.score.StageStatuses[i] = parseInt(formData[alliance + "StageStatuses" + i1]);
 
-    result.score.Grid.AutoScoring[i] = [];
-    result.score.Grid.Nodes[i] = [];
-    for (let j = 0; j < 9; j++) {
-      result.score.Grid.AutoScoring[i][j] = formData[alliance + `GridAutoScoringRow${i}Node${j}`] === "on";
-      result.score.Grid.Nodes[i][j] = parseInt(formData[alliance + `GridNodeStatesRow${i}Node${j}`]);
-    }
   }
 
+  result.score.AutoSpeakerNotes = parseInt(formData[alliance + "NotesAuto_Speaker"])
+  result.score.AutoAmpNotes = parseInt(formData[alliance + "NotesAuto_Amp"])
+  result.score.TeleopSpeakerNotesAmplified = parseInt(formData[alliance + "NotesAmplified_In_Speaker"])
+  result.score.TeleopSpeakerNotesNotAmplified = parseInt(formData[alliance + "NotesSpeaker"])
+  result.score.TeleopAmpNotes = parseInt(formData[alliance + "NotesAmp"])
   result.score.AutoChargeStationLevel = formData[alliance + "AutoChargeStationLevel"] === "on";
   result.score.EndgameChargeStationLevel = formData[alliance + "EndgameChargeStationLevel"] === "on";
+
+  result.score.ForceEnsembleTrue = formData[alliance + "ForceEnsembleTrue"] === "on";
+  result.score.ForceEnsembleFalse = formData[alliance + "ForceEnsembleFalse"] === "on";
+  result.score.ForceMelodyTrue = formData[alliance + "ForceMelodyTrue"] === "on";
+  result.score.ForceMelodyFalse = formData[alliance + "ForceMelodyFalse"] === "on";
+  result.score.ForceCoopTrue = formData[alliance + "ForceCoopTrue"] === "on";
+  result.score.ForceCoopFalse = formData[alliance + "ForceCoopFalse"] === "on";
 
   result.score.Fouls = [];
 
