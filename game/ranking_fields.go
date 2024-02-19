@@ -9,7 +9,9 @@ import "math/rand"
 
 type RankingFields struct {
 	RankingPoints       int
+	CoopertitionBonus	int
 	MatchPoints         int
+	ChargeStationPoints int
 	AutoPoints          int
 	Random              float64
 	Wins                int
@@ -54,6 +56,7 @@ func (fields *RankingFields) AddScoreSummary(ownScore *ScoreSummary, opponentSco
 
 	// Assign tiebreaker points.
 	fields.MatchPoints += ownScore.MatchPoints
+	fields.ChargeStationPoints += ownScore.ChargeStationPoints
 	fields.AutoPoints += ownScore.AutoPoints
 }
 
@@ -69,15 +72,15 @@ func (rankings Rankings) Less(i, j int) bool {
 
 	// Use cross-multiplication to keep it in integer math.
 	if a.RankingPoints*b.Played == b.RankingPoints*a.Played {
-		// if a.MatchPoints*b.Played == b.MatchPoints*a.Played {
-		// 	if a.ChargeStationPoints*b.Played == b.ChargeStationPoints*a.Played {
-		// 		if a.AutoPoints*b.Played == b.AutoPoints*a.Played {
-		// 			return a.Random > b.Random
-		// 		}
-		// 		return a.AutoPoints*b.Played > b.AutoPoints*a.Played
-		// 	}
-		// 	return a.ChargeStationPoints*b.Played > b.ChargeStationPoints*a.Played
-		// }
+		if a.MatchPoints*b.Played == b.MatchPoints*a.Played {
+			if a.ChargeStationPoints*b.Played == b.ChargeStationPoints*a.Played {
+				if a.AutoPoints*b.Played == b.AutoPoints*a.Played {
+					return a.Random > b.Random
+				}
+				return a.AutoPoints*b.Played > b.AutoPoints*a.Played
+			}
+			return a.ChargeStationPoints*b.Played > b.ChargeStationPoints*a.Played
+		}
 		return a.MatchPoints*b.Played > b.MatchPoints*a.Played
 	}
 	return a.RankingPoints*b.Played > b.RankingPoints*a.Played
