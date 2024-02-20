@@ -11,12 +11,12 @@
   <div id="cards">
     <h3>Red/Yellow Cards</h3>
     <div class="alliance-cards" id="redCards">
-      {{range $i := seq 3}}
+      {{range $i := seq 2}}
         {{template "teamCard" dict "alliance" "red" "position" $i}}
       {{end}}
     </div>
     <div class="alliance-cards" id="blueCards">
-      {{range $i := seq 3}}
+      {{range $i := seq 2}}
         {{template "teamCard" dict "alliance" "blue" "position" $i}}
       {{end}}
     </div>
