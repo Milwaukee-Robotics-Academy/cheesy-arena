@@ -28,32 +28,49 @@
 {{define "alliance_match_result"}}
 <h4>Score</h4>
 <div class="row">
-  <div class="col-sm-7 col-sm-offset-1 control-label">Auto Mobility Points</div>
+  <div class="col-sm-7 col-sm-offset-1 control-label">Auto Leave Points</div>
   <div class="col-sm-2">{{.summary.MobilityPoints}}</div>
 </div>
 <div class="row">
-  <div class="col-sm-7 col-sm-offset-1 control-label">Grid Points</div>
-  <div class="col-sm-2">{{.summary.GridPoints}}</div>
+  <div class="col-sm-7 col-sm-offset-1 control-label">Auto Amp Points</div>
+  <div class="col-sm-2">{{.summary.AutoAmpPoints}}</div>
 </div>
 <div class="row">
-  <div class="col-sm-7 col-sm-offset-1 control-label">Charge Station Points</div>
-  <div class="col-sm-2">{{.summary.ChargeStationPoints}}</div>
+  <div class="col-sm-7 col-sm-offset-1 control-label">Teleop Amp Points</div>
+  <div class="col-sm-2">{{.summary.AmpPoints}}</div>
 </div>
 <div class="row">
-  <div class="col-sm-7 col-sm-offset-1 control-label">Endgame Park Points</div>
-  <div class="col-sm-2">{{.summary.ParkPoints}}</div>
+  <div class="col-sm-7 col-sm-offset-1 control-label">Auto Speaker Points</div>
+  <div class="col-sm-2">{{.summary.AutoSpeakerPoints}}</div>
 </div>
+<div class="row">
+  <div class="col-sm-7 col-sm-offset-1 control-label">Teleop Speaker Points</div>
+  <div class="col-sm-2">{{.summary.SpeakerPoints}}</div>
+</div>
+<div class="row">
+  <div class="col-sm-7 col-sm-offset-1 control-label">Amplifies Speaker Points</div>
+  <div class="col-sm-2">{{.summary.AmplifiedPoints}}</div>
+</div>
+<div class="row">
+  <div class="col-sm-7 col-sm-offset-1 control-label">Stage Points</div>
+  <div class="col-sm-2">{{.summary.OnstagePoints}}</div>
+</div>
+
 <div class="row">
   <div class="col-sm-7 col-sm-offset-1 control-label">Foul Points</div>
   <div class="col-sm-2">{{.summary.FoulPoints}}</div>
 </div>
 <div class="row">
-  <div class="col-sm-7 col-sm-offset-1 control-label">Sustainability Bonus RP</div>
-  <div class="col-sm-2">{{if .summary.SustainabilityBonusRankingPoint}}Yes{{else}}No{{end}}</div>
+  <div class="col-sm-7 col-sm-offset-1 control-label">Melody RP</div>
+  <div class="col-sm-2">{{if .summary.MelodyRankingPoint}}Yes{{else}}No{{end}}</div>
 </div>
 <div class="row">
-  <div class="col-sm-7 col-sm-offset-1 control-label">Activation Bonus RP</div>
-  <div class="col-sm-2">{{if .summary.ActivationBonusRankingPoint}}Yes{{else}}No{{end}}</div>
+  <div class="col-sm-7 col-sm-offset-1 control-label">Ensemble RP</div>
+  <div class="col-sm-2">{{if .summary.EmsembleRankingPoint}}Yes{{else}}No{{end}}</div>
+</div>
+<div class="row">
+  <div class="col-sm-7 col-sm-offset-1 control-label">Coopertition</div>
+  <div class="col-sm-2">{{if .summary.CoopertitionBonus}}Yes{{else}}No{{end}}</div>
 </div>
 <div class="row">
   <div class="col-sm-7 col-sm-offset-1 control-label"><b>Final Score</b></div>
