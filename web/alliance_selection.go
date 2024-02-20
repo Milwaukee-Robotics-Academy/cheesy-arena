@@ -7,11 +7,12 @@ package web
 
 import (
 	"fmt"
-	"github.com/Team254/cheesy-arena/model"
-	"github.com/Team254/cheesy-arena/tournament"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/Team254/cheesy-arena/model"
+	"github.com/Team254/cheesy-arena/tournament"
 )
 
 type RankedTeam struct {
@@ -61,7 +62,7 @@ func (web *Web) allianceSelectionPostHandler(w http.ResponseWriter, r *http.Requ
 					web.renderAllianceSelection(w, r, fmt.Sprintf("Invalid team number value '%s'.", teamString))
 					return
 				}
-				found := false
+				// found := false
 				for _, team := range newRankedTeams {
 					if team.TeamId == teamId {
 						if team.Picked {
@@ -69,22 +70,22 @@ func (web *Web) allianceSelectionPostHandler(w http.ResponseWriter, r *http.Requ
 								fmt.Sprintf("Team %d is already part of an alliance.", teamId))
 							return
 						}
-						found = true
+						// found = true
 						team.Picked = true
 						web.arena.AllianceSelectionAlliances[i].TeamIds[j] = teamId
 						break
 					}
 				}
-				if !found {
-					web.renderAllianceSelection(
-						w,
-						r,
-						fmt.Sprintf(
-							"Team %d has not played any matches at this event and is ineligible for selection.", teamId,
-						),
-					)
-					return
-				}
+				// if !found {
+				// 	web.renderAllianceSelection(
+				// 		w,
+				// 		r,
+				// 		fmt.Sprintf(
+				// 			"Team %d has not played any matches at this event and is ineligible for selection.", teamId,
+				// 		),
+				// 	)
+				// 	return
+				// }
 			}
 		}
 	}
@@ -115,6 +116,7 @@ func (web *Web) allianceSelectionStartHandler(w http.ResponseWriter, r *http.Req
 	if web.arena.EventSettings.SelectionRound3Order != "" {
 		teamsPerAlliance = 4
 	}
+	fmt.Println("Number of Playoff Alliances: ", web.arena.EventSettings.NumPlayoffAlliances)
 	for i := 0; i < web.arena.EventSettings.NumPlayoffAlliances; i++ {
 		web.arena.AllianceSelectionAlliances[i].Id = i + 1
 		web.arena.AllianceSelectionAlliances[i].TeamIds = make([]int, teamsPerAlliance)
@@ -193,15 +195,15 @@ func (web *Web) allianceSelectionFinalizeHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// Check that all spots are filled.
-	for _, alliance := range web.arena.AllianceSelectionAlliances {
-		for _, allianceTeamId := range alliance.TeamIds {
-			if allianceTeamId <= 0 {
-				web.renderAllianceSelection(w, r, "Can't finalize alliance selection until all spots have been filled.")
-				return
-			}
-		}
-	}
+	// // Check that all spots are filled.
+	// for _, alliance := range web.arena.AllianceSelectionAlliances {
+	// 	for _, allianceTeamId := range alliance.TeamIds {
+	// 		if allianceTeamId <= 0 {
+	// 			web.renderAllianceSelection(w, r, "Can't finalize alliance selection until all spots have been filled.")
+	// 			return
+	// 		}
+	// 	}
+	// }
 
 	// Save alliances to the database.
 	for _, alliance := range web.arena.AllianceSelectionAlliances {

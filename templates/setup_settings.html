@@ -32,7 +32,7 @@
                   <input type="radio" name="playoffType" value="DoubleEliminationPlayoff"
                     onclick="updateNumPlayoffAlliances(true);"
                     {{if eq .PlayoffType 0}}checked{{end}}>
-                  Double-Elimination (8 alliances)
+                  Double-Elimination (3 alliances)
                 </label>
               </div>
               <div class="radio">
@@ -438,7 +438,7 @@
     const numPlayoffAlliances = $("input[name=numPlayoffAlliances]");
     numPlayoffAlliances.prop("disabled", isDoubleElimination);
     if (isDoubleElimination) {
-      numPlayoffAlliances.val(8);
+      numPlayoffAlliances.val(3);
     }
   };
   updateAccessPointType = function(isVividType) {

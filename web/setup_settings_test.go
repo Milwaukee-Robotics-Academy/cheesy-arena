@@ -5,15 +5,16 @@ package web
 
 import (
 	"bytes"
-	"github.com/Team254/cheesy-arena/game"
-	"github.com/Team254/cheesy-arena/model"
-	"github.com/Team254/cheesy-arena/tournament"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/Team254/cheesy-arena/game"
+	"github.com/Team254/cheesy-arena/model"
+	"github.com/Team254/cheesy-arena/tournament"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSetupSettings(t *testing.T) {
@@ -57,7 +58,7 @@ func TestSetupSettingsInvalidValues(t *testing.T) {
 
 	// Changing the playoff type after alliance selection is finalized.
 	assert.Nil(t, web.arena.Database.CreateAlliance(&model.Alliance{Id: 1}))
-	recorder = web.postHttpResponse("/setup/settings", "playoffType=SingleEliminationPlayoff&numPlayoffAlliances=8")
+	recorder = web.postHttpResponse("/setup/settings", "playoffType=SingleEliminationPlayoff&numPlayoffAlliances=3")
 	assert.Contains(t, recorder.Body.String(), "Cannot change playoff type after alliance selection")
 }
 

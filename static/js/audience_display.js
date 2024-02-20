@@ -126,7 +126,12 @@ const handleMatchLoad = function(data) {
   }
   $("#matchName").html(matchName);
   $("#timeoutNextMatchName").html(matchName);
-  $("#timeoutBreakDescription").text(data.BreakDescription);
+  if(data.BreakDescription[0] == 'F') {
+    $("#timeoutBreakDescription").text("Field Break");
+  } else {
+    $("#timeoutBreakDescription").text("Awards Break");
+  }
+  
 };
 
 // Handles a websocket message to update the match time countdown.
@@ -163,12 +168,12 @@ const handleRealtimeScore = function(data) {
     " invert(26%) sepia(83%) saturate(7485%) hue-rotate(356deg) brightness(104%) contrast(118%)" :  
     "");
   if (currentMatch.Type === matchTypePlayoff) {
-    $("#" + redSide + "SpeakerDenominator").hide();
-    $("#" + blueSide + "SpeakerDenominator").hide();
+    $("#" + redSide + "MelodyDenominator").hide();
+    $("#" + blueSide + "MelodyDenominator").hide();
     $(".speaker-splitter").hide();
   } else {
-    $("#" + redSide + "LinkDenominator").show();
-    $("#" + blueSide + "LinkDenominator").show();
+    $("#" + redSide + "MelodyDenominator").show();
+    $("#" + blueSide + "MelodyDenominator").show();
     $(".speaker-splitter").show();
   }
 
