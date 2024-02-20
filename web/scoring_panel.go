@@ -7,16 +7,17 @@ package web
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"strings"
+
 	"github.com/Team254/cheesy-arena/field"
 	"github.com/Team254/cheesy-arena/game"
 	"github.com/Team254/cheesy-arena/model"
 	"github.com/Team254/cheesy-arena/websocket"
 	"github.com/gorilla/mux"
 	"github.com/mitchellh/mapstructure"
-	"io"
-	"log"
-	"net/http"
-	"strings"
 )
 
 // Renders the scoring interface which enables input of scores in real-time.
@@ -83,7 +84,7 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 
 	// Subscribe the websocket to the notifiers whose messages will be passed on to the client, in a separate goroutine.
 	go ws.HandleNotifiers(web.arena.MatchLoadNotifier, web.arena.MatchTimeNotifier, web.arena.RealtimeScoreNotifier,
-		web.arena.ReloadDisplaysNotifier)
+		web.arena.ReloadDisplaysNotifier, web.arena.MatchTimingNotifier)
 
 	// Loop, waiting for commands and responding to them, until the client closes the connection.
 	for {
@@ -166,7 +167,7 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 				}
 			//case "amplificationActive":
 			case "AMPLIFICATIONACTIVE":
-				if score.AmplificationCount > 1 {//&& !score.AmplificationActive {
+				if score.AmplificationCount > 1 { //&& !score.AmplificationActive {
 					score.AmplificationActive = !score.AmplificationActive
 					score.AmplificationCount = 0
 					scoreChanged = true
@@ -181,7 +182,7 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 				scoreChanged = true
 			case "W":
 				score.AutoAmpNotes++
-				if !score.AmpAccumulatorDisable{
+				if !score.AmpAccumulatorDisable {
 					score.AmplificationCount = incrementAmplification(score.AmplificationCount)
 				}
 				scoreChanged = true
@@ -204,7 +205,7 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 				scoreChanged = true
 			case "R":
 				score.TeleopAmpNotes++
-				if !score.AmpAccumulatorDisable{
+				if !score.AmpAccumulatorDisable {
 					score.AmplificationCount = incrementAmplification(score.AmplificationCount)
 				}
 				scoreChanged = true
@@ -215,11 +216,11 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 				}
 				scoreChanged = true
 			case "F":
-				if !score.AmplificationActive{
-				score.TeleopSpeakerNotesNotAmplified++
-				}else{
-				score.TeleopSpeakerNotesAmplified++	
-				score.TeleopSpeaderNotesAmplifiedLimitCount++
+				if !score.AmplificationActive {
+					score.TeleopSpeakerNotesNotAmplified++
+				} else {
+					score.TeleopSpeakerNotesAmplified++
+					score.TeleopSpeaderNotesAmplifiedLimitCount++
 				}
 				scoreChanged = true
 			case "G":
@@ -229,7 +230,7 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 				}
 				scoreChanged = true
 			case "H":
-				if score.AmplificationActive{
+				if score.AmplificationActive {
 					score.TeleopSpeakerNotesAmplified++
 					score.TeleopSpeaderNotesAmplifiedLimitCount++
 					scoreChanged = true
@@ -282,21 +283,20 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 			}
 		}
 
-		
 	}
 
 }
 
 func incrementAmplification(amplificationCount int) int {
-	if amplificationCount < 2{
+	if amplificationCount < 2 {
 		amplificationCount++
 	}
 	return amplificationCount
 }
 
 func decrementAmplification(amplificationCount int) int {
-	if amplificationCount > 0{
+	if amplificationCount > 0 {
 		amplificationCount--
 	}
 	return amplificationCount
-} 
+}

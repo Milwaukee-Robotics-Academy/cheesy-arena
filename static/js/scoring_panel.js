@@ -22,6 +22,27 @@ const handleMatchLoad = function(data) {
 
 // Handles a websocket message to update the match status.
 const handleMatchTime = function(data) {
+  if(data.MatchState == 3) { // Autonomous
+    $("#autoGoalPeriod").css("background-color", "yellow");
+    $("#autoGoalPeriod").css("color", "black");
+  } else {
+    $("#autoGoalPeriod").css("background-color", "black");
+    $("#autoGoalPeriod").css("color", "white");
+  }
+
+  console.log(alliance)
+  if(data.MatchState == 5) { // Teleop
+    if(alliance === "red" && data.RedAmplificationRemaining === 0) {
+      $("#teleopGoalPeriod").css("background-color", "yellow");
+      $("#teleopGoalPeriod").css("color", "black");
+    } else if(alliance === "blue" && data.BlueAmplificationRemaining === 0){
+      $("#teleopGoalPeriod").css("background-color", "yellow");
+      $("#teleopGoalPeriod").css("color", "black");
+    } else {
+      $("#teleopGoalPeriod").css("background-color", "black");
+      $("#teleopGoalPeriod").css("color", "white");
+    }
+  }
   switch (matchStates[data.MatchState]) {
     case "PRE_MATCH":
       // Pre-match message state is set in handleRealtimeScore().
@@ -65,8 +86,17 @@ const handleRealtimeScore = function(data) {
     $("#coopertitionStatus").attr("data-value", score.CoopertitionStatus);
     $(`#amplificationActive>.value`).text(score.AmplificationActive ? "Amplification Active" : "Amplification");
     $("#amplificationActive").attr("data-value", score.AmplificationActive);
-    $("#amplificationActive").css("background-color", !score.AmpAccumulatorDisable && score.AmplificationActive ? "yellow" : "");
     $("#amplificationActive").css("color", !score.AmpAccumulatorDisable && score.AmplificationActive ? "black" : "");
+  }
+
+  if(score.AmplificationActive) {
+    $("#teleopGoalPeriod").css("background-color", "black");
+    $("#teleopGoalPeriod").css("color", "white");
+    $("#amplifiedGoalPeriod").css("background-color", "yellow");
+    $("#amplifiedGoalPeriod").css("color", "black");
+  } else {
+    $("#amplifiedGoalPeriod").css("background-color", "black");
+    $("#amplifiedGoalPeriod").css("color", "white");
   }
 
   $("#autoChargeStationLevel>.value").text(score.AutoChargeStationLevel ? "Level" : "Not Level");

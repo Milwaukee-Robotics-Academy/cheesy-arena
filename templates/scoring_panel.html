@@ -60,17 +60,17 @@
         <div class="goal-header">Speaker</div>
         <div class="goal-header">AMP</div>
       </div>
-      <div>
+      <div id="autoGoalPeriod">
         <div class="goal-period">Auto</div>
         {{template "goal" dict "plus" "S" "minus" "A" "count" "autoSpeakerCount"}}
         {{template "goal" dict "plus" "W" "minus" "Q" "count" "autoAmpCount"}}
       </div>
-      <div>
+      <div id="teleopGoalPeriod">
         <div class="goal-period">Teleop</div>
         {{template "goal" dict "plus" "F" "minus" "D" "count" "teleopSpeakerCountNotAmplified"}}
         {{template "goal" dict "plus" "R" "minus" "E" "count" "teleopAmpCount"}}
       </div>
-      <div>
+      <div id="amplifiedGoalPeriod">
         <div class="goal-period">Amplified</div>
         {{template "goal" dict "plus" "H" "minus" "G" "count" "teleopSpeakerCountAmplified"}}
 
