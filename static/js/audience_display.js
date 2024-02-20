@@ -126,10 +126,10 @@ const handleMatchLoad = function(data) {
   }
   $("#matchName").html(matchName);
   $("#timeoutNextMatchName").html(matchName);
-  if(data.BreakDescription[0] == 'F') {
-    $("#timeoutBreakDescription").text("Field Break");
-  } else {
+  if(data.BreakDescription[0] == 'A') {
     $("#timeoutBreakDescription").text("Awards Break");
+  } else {
+    $("#timeoutBreakDescription").text("Field Break");
   }
   
 };
