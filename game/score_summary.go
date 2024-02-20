@@ -41,6 +41,7 @@ type ScoreSummary struct {
 	NumSpeakers                     int
 	NumSpeakersGoal                 int
 	TotalNotes                      int
+	AmplificationSecRemaining       int
 }
 
 type MatchStatus int

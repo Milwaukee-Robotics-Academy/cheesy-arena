@@ -587,3 +587,18 @@ html {
   font-family: "FuturaLTBold";
   line-height: 87px;
 }
+.ampTimer {
+  display: flex;
+  width: 100px;
+  height: 100px;
+  background-color: rgb(255, 255, 0);
+  border: black 5px solid;
+  border-radius: 10px;
+  align-items:center;
+  justify-content: center;
+  color: black;
+  font-size: 72px;
+  font-family: "FuturaLTBold";
+  margin-left: 20px;
+  margin-right: 20px;
+}

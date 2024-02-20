@@ -148,6 +148,22 @@ const handleMatchTime = function(data) {
 
 // Handles a websocket message to update the match score.
 const handleRealtimeScore = function(data) {
+  $("#" + redSide + "AmpTimer").text(data.Red.ScoreSummary.AmplificationSecRemaining);
+
+  if (data.Red.ScoreSummary.AmplificationActive === true) {
+    $("#" + redSide + "AmpTimer").css("opacity", "1.0");
+  } else {
+    $("#" + redSide + "AmpTimer").css("opacity", "0.0");
+  }
+
+  $("#" + blueSide + "AmpTimer").text(data.Blue.ScoreSummary.AmplificationSecRemaining);
+
+  if (data.Blue.ScoreSummary.AmplificationActive === true) {
+    $("#" + blueSide + "AmpTimer").css("opacity", "1.0");
+  } else {
+    $("#" + blueSide + "AmpTimer").css("opacity", "0.0");
+  }
+
   $("#" + redSide + "ScoreNumber").text(data.Red.ScoreSummary.Score - data.Red.ScoreSummary.EndgamePoints);
   $("#" + blueSide + "ScoreNumber").text(data.Blue.ScoreSummary.Score - data.Blue.ScoreSummary.EndgamePoints);
 

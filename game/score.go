@@ -129,6 +129,8 @@ func (score *Score) Summarize(opponentScore *Score) *ScoreSummary {
 
 	summary.TrapPoints = score.TrapNotes * 5
 
+	summary.AmplificationSecRemaining = score.AmplificationSecRemaining
+
 	//summary.OnstagePoints = 0
 	for i := 0; i < 3; i++ {
 		switch score.StageStatuses[i] {
