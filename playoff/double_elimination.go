@@ -14,9 +14,9 @@ import (
 // Creates a double-elimination bracket and returns the root matchup comprising the tournament finals along with
 // scheduled breaks. Only supports having exactly eight alliances.
 func newDoubleEliminationBracket(numAlliances int) (*Matchup, []breakSpec, error) {
-	if numAlliances != 3 {
-		return nil, nil, fmt.Errorf("double-elimination bracket must have exactly 3 alliances")
-	}
+	// if numAlliances != 3 {
+	// 	return nil, nil, fmt.Errorf("double-elimination bracket must have exactly 3 alliances")
+	// }
 
 	// Define Round 1 matches.
 	m1 := Matchup{
