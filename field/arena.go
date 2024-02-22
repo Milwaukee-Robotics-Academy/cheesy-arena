@@ -8,6 +8,7 @@ package field
 import (
 	"fmt"
 	"log"
+	"math"
 	"reflect"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/Team254/cheesy-arena/partner"
 	"github.com/Team254/cheesy-arena/playoff"
 	"github.com/Team254/cheesy-arena/plc"
+	"github.com/simulatedsimian/joystick"
 )
 
 const (
@@ -96,11 +98,19 @@ type AllianceStation struct {
 	WifiStatus network.TeamWifiStatus
 }
 
+var js joystick.Joystick
+
 // Creates the arena and sets it to its initial state.
 func NewArena(dbPath string) (*Arena, error) {
 	arena := new(Arena)
 	arena.configureNotifiers()
 	arena.Plc = new(plc.ModbusPlc)
+
+	var joyErr error
+	js, joyErr = joystick.Open(0)
+	if joyErr != nil {
+		panic(joyErr)
+	}
 
 	arena.AllianceStations = make(map[string]*AllianceStation)
 	arena.AllianceStations["R1"] = new(AllianceStation)
@@ -561,6 +571,11 @@ func (arena *Arena) MatchTimeSec() float64 {
 // Performs a single iteration of checking inputs and timers and setting outputs accordingly to control the
 // flow of a match.
 func (arena *Arena) Update() {
+	joyState, err := js.Read()
+	// Handle PLC functions that are always active.
+	if (joyState.Buttons != 0 || math.Abs(float64(joyState.AxisData[0])) > 5000 || math.Abs(float64(joyState.AxisData[1])) > 5000 || err != nil) && !arena.matchAborted {
+		arena.AbortMatch()
+	}
 	// Decide what state the robots need to be in, depending on where we are in the match.
 	auto := false
 	enabled := false
@@ -990,10 +1005,6 @@ func (arena *Arena) handlePlcInputOutput() {
 		return
 	}
 
-	// Handle PLC functions that are always active.
-	if arena.Plc.GetFieldEstop() && !arena.matchAborted {
-		arena.AbortMatch()
-	}
 	redEstops, blueEstops := arena.Plc.GetTeamEstops()
 	arena.handleEstop("R1", redEstops[0])
 	arena.handleEstop("R2", redEstops[1])
