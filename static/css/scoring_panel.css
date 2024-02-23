@@ -45,6 +45,7 @@ body {
   display: flex;
   font-size: 1.5vw;
   color: #ccc;
+  width: auto;
 }
 .scoring-header>div{
   height: 3.3vw;
@@ -174,28 +175,30 @@ body {
 }
 
 .goal-header {
-  height: 5vw;
+  height: 20vw;
   margin: 0.4vw 0vw;
   color: rgb(255, 255, 255);
   display: flex;
   flex-direction: column;
   justify-content: center;
+  font-size: 36px;
 }
 .goal-period {
   text-align: center;
   color: rgb(255, 255, 255);
+  font-size: 36px;
 }
 .goal {
-  width: 10vw;
-  height: 5vw;
+  width: 50vw;
+  height: 20vw;
   margin: 0.4vw 3vw;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .number-button {
-  width: 4vw;
-  height: 4vw;
+  width: 20vw;
+  height: 20vw;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -219,4 +222,32 @@ body {
   margin: 0 0.2vw;
   font-size: 1vw;
   align-self: flex-start;
+}
+#hpElements {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#coopertitionStatus, #amplificationActive {
+  width: 40%;
+  height: 500px;
+  font-size: 200%;
+  color: #000;
+}
+
+#amplificationActive[data-alliance="red-hp"] {
+  background-color: rgb(236, 121, 121);
+}
+
+#coopertitionStatus[data-value="false"] {
+  background-color: yellow;
+}
+
+#hpStatuses {
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
 }

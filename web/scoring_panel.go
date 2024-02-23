@@ -27,7 +27,8 @@ func (web *Web) scoringPanelHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
-	alliance := vars["alliance"]
+	fmt.Println("Vars: ", vars)
+	alliance := strings.Split(vars["alliance"], "-")[0]
 	if alliance != "red" && alliance != "blue" {
 		handleWebErr(w, fmt.Errorf("Invalid alliance '%s'.", alliance))
 		return
@@ -58,9 +59,16 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	vars := mux.Vars(r)
-	alliance := vars["alliance"]
+	fmt.Println("Vars: ", vars)
+	alliance := strings.Split(vars["alliance"], "-")[0]
+	panelType := strings.Split(vars["alliance"], "-")[1]
 	if alliance != "red" && alliance != "blue" {
 		handleWebErr(w, fmt.Errorf("Invalid alliance '%s'.", alliance))
+		return
+	}
+
+	if panelType != "near" && panelType != "far" && panelType != "hp" && panelType != "scorer" {
+		handleWebErr(w, fmt.Errorf("Invalid panel type '%s'.", panelType))
 		return
 	}
 

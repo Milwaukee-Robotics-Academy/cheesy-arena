@@ -5,9 +5,25 @@
 
 var websocket;
 let alliance;
+let type;
 
 // Handles a websocket message to update the teams for the current match.
 const handleMatchLoad = function(data) {
+  if(type === "hp") {
+    $("#matchName").hide();
+    $("#currentScore").hide();
+    $(".scoring-header").hide();
+    $(".robot-scoring").hide();
+    $("#stage").hide();
+    $("#elements").hide();
+    $("#ampAccumulatorDisable").hide();
+  } else if(type === "scorer") {
+    $("#hpElements").hide();
+    $(".robot-scoring").hide();
+    $("#stage").hide();
+    $(".scoring-header").hide();
+  }
+
   $("#matchName").text(data.Match.LongName);
   if (alliance === "red") {
     $("#team1").text(data.Match.Red1);
@@ -22,27 +38,27 @@ const handleMatchLoad = function(data) {
 
 // Handles a websocket message to update the match status.
 const handleMatchTime = function(data) {
-  if(data.MatchState == 3) { // Autonomous
-    $("#autoGoalPeriod").css("background-color", "yellow");
-    $("#autoGoalPeriod").css("color", "black");
-  } else {
-    $("#autoGoalPeriod").css("background-color", "black");
-    $("#autoGoalPeriod").css("color", "white");
-  }
-
-  console.log(alliance)
-  if(data.MatchState == 5) { // Teleop
-    if(alliance === "red" && data.RedAmplificationRemaining === 0) {
-      $("#teleopGoalPeriod").css("background-color", "yellow");
-      $("#teleopGoalPeriod").css("color", "black");
-    } else if(alliance === "blue" && data.BlueAmplificationRemaining === 0){
-      $("#teleopGoalPeriod").css("background-color", "yellow");
-      $("#teleopGoalPeriod").css("color", "black");
+  if(type == "scorer") {
+    if(data.MatchState == 3 || data.MatchState == 4) { // Autonomous
+      $("#elements").show();
+      $("#autoGoalPeriod").show();
+      $("#teleopGoalPeriod").hide();
+      $("#amplifiedGoalPeriod").hide();
+    } else if(data.MatchState == 5 || data.MatchState == 6) { // Teleop
+      $("#elements").show();
+      $("#autoGoalPeriod").hide();
+      $("#teleopGoalPeriod").show();
+      $("#amplifiedGoalPeriod").hide();
     } else {
-      $("#teleopGoalPeriod").css("background-color", "black");
-      $("#teleopGoalPeriod").css("color", "white");
+      $("#elements").hide();
+      $("#autoGoalPeriod").hide();
+      $("#teleopGoalPeriod").hide();
+      $("#amplifiedGoalPeriod").hide();
     }
   }
+  
+
+
   switch (matchStates[data.MatchState]) {
     case "PRE_MATCH":
       // Pre-match message state is set in handleRealtimeScore().
@@ -51,7 +67,9 @@ const handleMatchTime = function(data) {
       break;
     case "POST_MATCH":
       $("#postMatchMessage").hide();
-      $("#commitMatchScore").css("display", "flex");
+      if(type != "hp") {
+        $("#commitMatchScore").css("display", "flex");
+      }
       break;
     default:
       $("#postMatchMessage").hide();
@@ -61,6 +79,8 @@ const handleMatchTime = function(data) {
 
 // Handles a websocket message to update the realtime scoring fields.
 const handleRealtimeScore = function(data) {
+  console.log("RealTime Score");
+  console.log(data);
   let realtimeScore;
   if (alliance === "red") {
     realtimeScore = data.Red;
@@ -82,21 +102,11 @@ const handleRealtimeScore = function(data) {
     $(`#harmonyStatus${i1}>.value`).text(score.HarmonyStatuses[i] ? "Yes" : "No");
     $("#harmonyStatus" + i1).attr("data-value", score.HarmonyStatuses[i]);
     
-    $(`#coopertitionStatus>.value`).text(score.CoopertitionStatus ? "Cooperation Enabled" : "Cooperation");
+    $(`#coopertitionStatus>.value`).text(score.CoopertitionStatus ? "Coopertition Enabled" : "Coopertition");
     $("#coopertitionStatus").attr("data-value", score.CoopertitionStatus);
     $(`#amplificationActive>.value`).text(score.AmplificationActive ? "Amplification Active" : "Amplification");
     $("#amplificationActive").attr("data-value", score.AmplificationActive);
     $("#amplificationActive").css("color", !score.AmpAccumulatorDisable && score.AmplificationActive ? "black" : "");
-  }
-
-  if(score.AmplificationActive) {
-    $("#teleopGoalPeriod").css("background-color", "black");
-    $("#teleopGoalPeriod").css("color", "white");
-    $("#amplifiedGoalPeriod").css("background-color", "yellow");
-    $("#amplifiedGoalPeriod").css("color", "black");
-  } else {
-    $("#amplifiedGoalPeriod").css("background-color", "black");
-    $("#amplifiedGoalPeriod").css("color", "white");
   }
 
   $("#autoChargeStationLevel>.value").text(score.AutoChargeStationLevel ? "Level" : "Not Level");
@@ -168,7 +178,10 @@ const getStageStatusText = function(level) {
 };
 
 $(function() {
-  alliance = window.location.href.split("/").slice(-1)[0];
+  panelId = window.location.href.split("/").slice(-1)[0];
+  alliance = panelId.split("-")[0];
+  type = panelId.split("-")[1];
+  console.log(type);
   $("#alliance").attr("data-alliance", alliance);
 
   // Set up the websocket back to the server.

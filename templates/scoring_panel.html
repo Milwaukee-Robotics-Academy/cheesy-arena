@@ -9,6 +9,24 @@
 <div id="matchName">&nbsp;</div>
 <div id="currentScore"></div>
 <div id="alliance">
+  <div id="hpElements">
+    <div id="coopertitionStatus" class="boolean robot-field" onclick="handleClick('coopertitionStatus');">
+      <div class="value"></div>
+    </div>
+    <div id="hpStatuses">
+      <div id="currentAmpificationCount"></div>
+      <div id="ampCount"></div>
+      <div id="speakerCount"></div>
+    </div>
+    
+    <div id="amplificationActive" class="boolean robot-field" onclick="handleClick('amplificationActive');">
+      <div class="value"></div>
+    </div>
+    <div id="ampAccumulatorDisable" class="boolean robot-field" onclick="handleClick('ampAccumulatorDisable');">
+      <div class="value"></div>
+    </div>
+  </div>
+</div>
   <div class="scoring-section">
     <div class="scoring-header">
       <div>&nbsp;</div>
@@ -18,7 +36,7 @@
     </div>
     {{range $i := seq 2}}
 
-      <div>
+      <div class="robot-scoring">
         <div id="team{{$i}}" class="team robot-field"></div>
         <div id="mobilityStatus{{$i}}" class="boolean robot-field" onclick="handleClick('mobilityStatus', {{$i}});">
           <div class="value"></div>
@@ -33,29 +51,13 @@
       </div>
     {{end}}
     <div>&nbsp;</div>
-    <div>
-      <div id="currentAmpificationCount"></div>
-      <div id="ampCount"></div>
-      <div id="speakerCount"></div>
-      <div id="trapCount"></div>
-      <div id="coopertitionStatus" class="boolean robot-field" onclick="handleClick('coopertitionStatus');">
-        <div class="value"></div>
-      </div>
-      <div id="amplificationActive" class="boolean robot-field" onclick="handleClick('amplificationActive');">
-        <div class="value"></div>
-      </div>
-      <div id="ampAccumulatorDisable" class="boolean robot-field" onclick="handleClick('ampAccumulatorDisable');">
-        <div class="value"></div>
-      </div>
-    </div>
-  </div>
   <div id="stage" class="scoring-section">
     <div class="goal-header">Stage Trap</div>
     {{template "goal" dict "plus" "T" "minus" "Y" "count" "trapCount1"}}
   </div>
   <div id="elements">
     <div class="scoring-section">
-      <div>
+      <div id="speakAmpHeader">
         <div>&nbsp;</div>
         <div class="goal-header">Speaker</div>
         <div class="goal-header">AMP</div>
