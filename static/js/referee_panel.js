@@ -12,6 +12,10 @@ const addFoul = function(alliance, isTechnical) {
   websocket.send("addFoul", {Alliance: alliance, IsTechnical: isTechnical});
 }
 
+const removeFoul = function(alliance, isTechnical) {
+  websocket.send("removeFoul", {Alliance: alliance, IsTechnical: isTechnical});
+}
+
 // Toggles the foul type between technical and non-technical.
 const toggleFoulType = function(alliance, index) {
   websocket.send("toggleFoulType", {Alliance: alliance, Index: index});
@@ -80,15 +84,39 @@ const handleRealtimeScore = function(data) {
     $(`[data-team="${teamId}"]`).attr("data-card", card);
   }
 
-  const newRedFoulsHashCode = hashObject(data.Red.Score.Fouls);
-  const newBlueFoulsHashCode = hashObject(data.Blue.Score.Fouls);
-  if (newRedFoulsHashCode !== redFoulsHashCode || newBlueFoulsHashCode !== blueFoulsHashCode) {
-    redFoulsHashCode = newRedFoulsHashCode;
-    blueFoulsHashCode = newBlueFoulsHashCode;
-    fetch("/panels/referee/foul_list")
-      .then(response => response.text())
-      .then(svg => $("#foulList").html(svg));
-  }
+  $("#hr-red-foul").text("Head Ref: " + data.Red.Score.HeadRefFouls);
+  $("#rn-red-foul").text("Red Near: " + data.Red.Score.RedNearFouls);
+  $("#rf-red-foul").text("Red Far: " + data.Red.Score.RedFarFouls);
+  $("#bn-red-foul").text("Blue Near: " + data.Red.Score.BlueNearFouls);
+  $("#bf-red-foul").text("Blue Far: " + data.Red.Score.BlueFarFouls);
+
+  $("#hr-red-tech-foul").text("Head Ref: " + data.Red.Score.HeadRefTechFouls);
+  $("#rn-red-tech-foul").text("Red Near: " + data.Red.Score.RedNearTechFouls);
+  $("#rf-red-tech-foul").text("Red Far: " + data.Red.Score.RedFarTechFouls);
+  $("#bn-red-tech-foul").text("Blue Near: " + data.Red.Score.BlueNearTechFouls);
+  $("#bf-red-tech-foul").text("Blue Far: " + data.Red.Score.BlueFarTechFouls);
+
+  $("#hr-blue-foul").text("Head Ref: " + data.Blue.Score.HeadRefFouls);
+  $("#rn-blue-foul").text("Red Near: " + data.Blue.Score.RedNearFouls);
+  $("#rf-blue-foul").text("Red Far: " + data.Blue.Score.RedFarFouls);
+  $("#bn-blue-foul").text("Blue Near: " + data.Blue.Score.BlueNearFouls);
+  $("#bf-blue-foul").text("Blue Far: " + data.Blue.Score.BlueFarFouls);
+
+  $("#hr-blue-tech-foul").text("Head Ref: " + data.Blue.Score.HeadRefTechFouls);
+  $("#rn-blue-tech-foul").text("Red Near: " + data.Blue.Score.RedNearTechFouls);
+  $("#rf-blue-tech-foul").text("Red Far: " + data.Blue.Score.RedFarTechFouls);
+  $("#bn-blue-tech-foul").text("Blue Near: " + data.Blue.Score.BlueNearTechFouls);
+  $("#bf-blue-tech-foul").text("Blue Far: " + data.Blue.Score.BlueFarTechFouls);
+
+  // const newRedFoulsHashCode = hashObject(data.Red.Score.Fouls);
+  // const newBlueFoulsHashCode = hashObject(data.Blue.Score.Fouls);
+  // if (newRedFoulsHashCode !== redFoulsHashCode || newBlueFoulsHashCode !== blueFoulsHashCode) {
+  //   redFoulsHashCode = newRedFoulsHashCode;
+  //   blueFoulsHashCode = newBlueFoulsHashCode;
+  //   fetch("/panels/referee/foul_list")
+  //     .then(response => response.text())
+  //     .then(svg => $("#foulList").html(svg));
+  // }
 }
 
 // Handles a websocket message to update the scoring commit status.

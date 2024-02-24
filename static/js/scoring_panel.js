@@ -179,13 +179,13 @@ const getStageStatusText = function(level) {
 
 $(function() {
   panelId = window.location.href.split("/").slice(-1)[0];
-  alliance = panelId.split("-")[0];
-  type = panelId.split("-")[1];
+  alliance = panelId.split("_")[0];
+  type = panelId.split("_")[1];
   console.log(type);
   $("#alliance").attr("data-alliance", alliance);
 
   // Set up the websocket back to the server.
-  websocket = new CheesyWebsocket("/panels/scoring/" + alliance + "/websocket", {
+  websocket = new CheesyWebsocket("/panels/scoring/" + panelId + "/websocket", {
     matchLoad: function(event) { handleMatchLoad(event.data); },
     matchTime: function(event) { handleMatchTime(event.data); },
     realtimeScore: function(event) { handleRealtimeScore(event.data); },

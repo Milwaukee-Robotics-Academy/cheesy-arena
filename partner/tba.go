@@ -647,13 +647,13 @@ func createTbaScoringBreakdown(
 	breakdown.CoopertitionCriteriaMet = score.Grid.IsCoopertitionThresholdAchieved()
 	breakdown.SustainabilityBonusAchieved = scoreSummary.SustainabilityBonusRankingPoint
 	breakdown.ActivationBonusAchieved = scoreSummary.ActivationBonusRankingPoint
-	for _, foul := range score.Fouls {
-		if foul.IsTechnical {
-			breakdown.TechFoulCount++
-		} else {
-			breakdown.FoulCount++
-		}
-	}
+	// for _, foul := range score.Fouls {
+	// 	if foul.IsTechnical {
+	// 		breakdown.TechFoulCount++
+	// 	} else {
+	// 		breakdown.FoulCount++
+	// 	}
+	// }
 	breakdown.FoulPoints = scoreSummary.FoulPoints
 	breakdown.TotalPoints = scoreSummary.Score
 

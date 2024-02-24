@@ -6,11 +6,12 @@
 package field
 
 import (
+	"strconv"
+
 	"github.com/Team254/cheesy-arena/game"
 	"github.com/Team254/cheesy-arena/model"
 	"github.com/Team254/cheesy-arena/playoff"
 	"github.com/Team254/cheesy-arena/websocket"
-	"strconv"
 )
 
 type ArenaNotifiers struct {
@@ -33,11 +34,9 @@ type ArenaNotifiers struct {
 
 type MatchTimeMessage struct {
 	MatchState
-	MatchTimeSec int
-	RedAmplificationRemaining int
+	MatchTimeSec               int
+	RedAmplificationRemaining  int
 	BlueAmplificationRemaining int
-	
-	
 }
 
 type audienceAllianceScoreFields struct {
@@ -179,7 +178,7 @@ func (arena *Arena) GenerateMatchLoadMessage() any {
 }
 
 func (arena *Arena) generateMatchTimeMessage() any {
-	return MatchTimeMessage{arena.MatchState, int(arena.MatchTimeSec()),arena.RedRealtimeScore.CurrentScore.AmplificationSecRemaining,arena.BlueRealtimeScore.CurrentScore.AmplificationSecRemaining}
+	return MatchTimeMessage{arena.MatchState, int(arena.MatchTimeSec()), arena.RedRealtimeScore.CurrentScore.AmplificationSecRemaining, arena.BlueRealtimeScore.CurrentScore.AmplificationSecRemaining}
 }
 
 func (arena *Arena) generateMatchTimingMessage() any {
@@ -255,9 +254,6 @@ func (arena *Arena) GenerateScorePostedMessage() any {
 		BlueScoreSummary    *game.ScoreSummary
 		RedRankingPoints    int
 		BlueRankingPoints   int
-		RedFouls            []game.Foul
-		BlueFouls           []game.Foul
-		RulesViolated       map[int]*game.Rule
 		RedCards            map[string]string
 		BlueCards           map[string]string
 		RedRankings         map[int]*game.Ranking
@@ -276,9 +272,6 @@ func (arena *Arena) GenerateScorePostedMessage() any {
 		blueScoreSummary,
 		redRankingPoints,
 		blueRankingPoints,
-		arena.SavedMatchResult.RedScore.Fouls,
-		arena.SavedMatchResult.BlueScore.Fouls,
-		getRulesViolated(arena.SavedMatchResult.RedScore.Fouls, arena.SavedMatchResult.BlueScore.Fouls),
 		arena.SavedMatchResult.RedCards,
 		arena.SavedMatchResult.BlueCards,
 		redRankings,
@@ -319,13 +312,13 @@ func getAudienceAllianceScoreFields(allianceScore *RealtimeScore,
 }
 
 // Produce a map of rules that were violated by either alliance so that they are available to the announcer.
-func getRulesViolated(redFouls, blueFouls []game.Foul) map[int]*game.Rule {
-	rules := make(map[int]*game.Rule)
-	for _, foul := range redFouls {
-		rules[foul.RuleId] = game.GetRuleById(foul.RuleId)
-	}
-	for _, foul := range blueFouls {
-		rules[foul.RuleId] = game.GetRuleById(foul.RuleId)
-	}
-	return rules
-}
+// func getRulesViolated(redFouls, blueFouls []game.Foul) map[int]*game.Rule {
+// 	rules := make(map[int]*game.Rule)
+// 	for _, foul := range redFouls {
+// 		rules[foul.RuleId] = game.GetRuleById(foul.RuleId)
+// 	}
+// 	for _, foul := range blueFouls {
+// 		rules[foul.RuleId] = game.GetRuleById(foul.RuleId)
+// 	}
+// 	return rules
+// }

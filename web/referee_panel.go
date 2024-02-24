@@ -7,15 +7,15 @@ package web
 
 import (
 	"fmt"
-	"github.com/Team254/cheesy-arena/field"
-	"github.com/Team254/cheesy-arena/game"
-	"github.com/Team254/cheesy-arena/model"
-	"github.com/Team254/cheesy-arena/websocket"
-	"github.com/mitchellh/mapstructure"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/Team254/cheesy-arena/field"
+	"github.com/Team254/cheesy-arena/model"
+	"github.com/Team254/cheesy-arena/websocket"
+	"github.com/mitchellh/mapstructure"
 )
 
 // Renders the referee interface for assigning fouls.
@@ -41,30 +41,30 @@ func (web *Web) refereePanelHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Renders a partial template for when the foul list is updated.
-func (web *Web) refereePanelFoulListHandler(w http.ResponseWriter, r *http.Request) {
-	template, err := web.parseFiles("templates/referee_panel_foul_list.html")
-	if err != nil {
-		handleWebErr(w, err)
-		return
-	}
+// func (web *Web) refereePanelFoulListHandler(w http.ResponseWriter, r *http.Request) {
+// 	template, err := web.parseFiles("templates/referee_panel_foul_list.html")
+// 	if err != nil {
+// 		handleWebErr(w, err)
+// 		return
+// 	}
 
-	data := struct {
-		Match     *model.Match
-		RedFouls  []game.Foul
-		BlueFouls []game.Foul
-		Rules     map[int]*game.Rule
-	}{
-		web.arena.CurrentMatch,
-		web.arena.RedRealtimeScore.CurrentScore.Fouls,
-		web.arena.BlueRealtimeScore.CurrentScore.Fouls,
-		game.GetAllRules(),
-	}
-	err = template.ExecuteTemplate(w, "referee_panel_foul_list", data)
-	if err != nil {
-		handleWebErr(w, err)
-		return
-	}
-}
+// 	data := struct {
+// 		Match     *model.Match
+// 		RedFouls  []game.Foul
+// 		BlueFouls []game.Foul
+// 		Rules     map[int]*game.Rule
+// 	}{
+// 		web.arena.CurrentMatch,
+// 		web.arena.RedRealtimeScore.CurrentScore.Fouls,
+// 		web.arena.BlueRealtimeScore.CurrentScore.Fouls,
+// 		game.GetAllRules(),
+// 	}
+// 	err = template.ExecuteTemplate(w, "referee_panel_foul_list", data)
+// 	if err != nil {
+// 		handleWebErr(w, err)
+// 		return
+// 	}
+// }
 
 // The websocket endpoint for the refereee interface client to send control commands and receive status updates.
 func (web *Web) refereePanelWebsocketHandler(w http.ResponseWriter, r *http.Request) {
@@ -113,21 +113,26 @@ func (web *Web) refereePanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 			}
 
 			// Add the foul to the correct alliance's list.
-			foul := game.Foul{IsTechnical: args.IsTechnical}
 			if args.Alliance == "red" {
-				web.arena.RedRealtimeScore.CurrentScore.Fouls =
-					append(web.arena.RedRealtimeScore.CurrentScore.Fouls, foul)
+				if args.IsTechnical {
+					web.arena.RedRealtimeScore.CurrentScore.HeadRefTechFouls += 1
+				} else {
+					web.arena.RedRealtimeScore.CurrentScore.HeadRefFouls += 1
+				}
+				// web.arena.RedRealtimeScore.CurrentScore.Fouls =
+				// 	append(web.arena.RedRealtimeScore.CurrentScore.Fouls, foul)
 			} else {
-				web.arena.BlueRealtimeScore.CurrentScore.Fouls =
-					append(web.arena.BlueRealtimeScore.CurrentScore.Fouls, foul)
+				if args.IsTechnical {
+					web.arena.BlueRealtimeScore.CurrentScore.HeadRefTechFouls += 1
+				} else {
+					web.arena.BlueRealtimeScore.CurrentScore.HeadRefFouls += 1
+				}
 			}
 			web.arena.RealtimeScoreNotifier.Notify()
-		case "toggleFoulType", "updateFoulTeam", "updateFoulRule", "deleteFoul":
+		case "removeFoul":
 			args := struct {
-				Alliance string
-				Index    int
-				TeamId   int
-				RuleId   int
+				Alliance    string
+				IsTechnical bool
 			}{}
 			err = mapstructure.Decode(data, &args)
 			if err != nil {
@@ -135,31 +140,61 @@ func (web *Web) refereePanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 				continue
 			}
 
-			// Find the foul in the correct alliance's list.
-			var fouls *[]game.Foul
+			// Add the foul to the correct alliance's list.
 			if args.Alliance == "red" {
-				fouls = &web.arena.RedRealtimeScore.CurrentScore.Fouls
-			} else {
-				fouls = &web.arena.BlueRealtimeScore.CurrentScore.Fouls
-			}
-			if args.Index >= 0 && args.Index < len(*fouls) {
-				switch messageType {
-				case "toggleFoulType":
-					(*fouls)[args.Index].IsTechnical = !(*fouls)[args.Index].IsTechnical
-					(*fouls)[args.Index].RuleId = 0
-				case "deleteFoul":
-					*fouls = append((*fouls)[:args.Index], (*fouls)[args.Index+1:]...)
-				case "updateFoulTeam":
-					if (*fouls)[args.Index].TeamId == args.TeamId {
-						(*fouls)[args.Index].TeamId = 0
-					} else {
-						(*fouls)[args.Index].TeamId = args.TeamId
-					}
-				case "updateFoulRule":
-					(*fouls)[args.Index].RuleId = args.RuleId
+				if args.IsTechnical && web.arena.RedRealtimeScore.CurrentScore.HeadRefTechFouls >= 1 {
+					web.arena.RedRealtimeScore.CurrentScore.HeadRefTechFouls -= 1
+				} else if web.arena.RedRealtimeScore.CurrentScore.HeadRefFouls >= 1 {
+					web.arena.RedRealtimeScore.CurrentScore.HeadRefFouls -= 1
 				}
-				web.arena.RealtimeScoreNotifier.Notify()
+				// web.arena.RedRealtimeScore.CurrentScore.Fouls =
+				// 	append(web.arena.RedRealtimeScore.CurrentScore.Fouls, foul)
+			} else {
+				if args.IsTechnical && web.arena.BlueRealtimeScore.CurrentScore.HeadRefTechFouls >= 1 {
+					web.arena.BlueRealtimeScore.CurrentScore.HeadRefTechFouls -= 1
+				} else if web.arena.BlueRealtimeScore.CurrentScore.HeadRefFouls >= 1 {
+					web.arena.BlueRealtimeScore.CurrentScore.HeadRefFouls -= 1
+				}
 			}
+			web.arena.RealtimeScoreNotifier.Notify()
+		case "toggleFoulType", "updateFoulTeam", "updateFoulRule", "deleteFoul":
+			// args := struct {
+			// 	Alliance string
+			// 	Index    int
+			// 	TeamId   int
+			// 	RuleId   int
+			// }{}
+			// err = mapstructure.Decode(data, &args)
+			// if err != nil {
+			// 	ws.WriteError(err.Error())
+			// 	continue
+			// }
+
+			// // Find the foul in the correct alliance's list.
+			// var fouls *[]game.Foul
+			// if args.Alliance == "red" {
+			// 	fouls = &web.arena.RedRealtimeScore.CurrentScore.Fouls
+			// } else {
+			// 	fouls = &web.arena.BlueRealtimeScore.CurrentScore.Fouls
+			// }
+			// if args.Index >= 0 && args.Index < len(*fouls) {
+			// 	switch messageType {
+			// 	case "toggleFoulType":
+			// 		(*fouls)[args.Index].IsTechnical = !(*fouls)[args.Index].IsTechnical
+			// 		(*fouls)[args.Index].RuleId = 0
+			// 	case "deleteFoul":
+			// 		*fouls = append((*fouls)[:args.Index], (*fouls)[args.Index+1:]...)
+			// 	case "updateFoulTeam":
+			// 		if (*fouls)[args.Index].TeamId == args.TeamId {
+			// 			(*fouls)[args.Index].TeamId = 0
+			// 		} else {
+			// 			(*fouls)[args.Index].TeamId = args.TeamId
+			// 		}
+			// 	case "updateFoulRule":
+			// 		(*fouls)[args.Index].RuleId = args.RuleId
+			// 	}
+			// 	web.arena.RealtimeScoreNotifier.Notify()
+			// }
 		case "card":
 			args := struct {
 				Alliance string

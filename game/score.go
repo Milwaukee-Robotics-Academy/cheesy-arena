@@ -27,7 +27,16 @@ type Score struct {
 	AutoChargeStationLevel    bool
 	EndgameStatuses           [3]EndgameStatus
 	EndgameChargeStationLevel bool
-	Fouls                     []Foul
+	HeadRefFouls              int
+	RedFarFouls               int
+	RedNearFouls              int
+	BlueFarFouls              int
+	BlueNearFouls             int
+	HeadRefTechFouls          int
+	RedFarTechFouls           int
+	RedNearTechFouls          int
+	BlueFarTechFouls          int
+	BlueNearTechFouls         int
 	PlayoffDq                 bool
 	ForceEnsembleTrue         bool
 	ForceEnsembleFalse        bool
@@ -169,21 +178,23 @@ func (score *Score) Summarize(opponentScore *Score) *ScoreSummary {
 		summary.EndStagePoints
 
 	// Calculate penalty points.
-	for _, foul := range opponentScore.Fouls {
-		summary.FoulPoints += foul.PointValue()
-		// Store the number of tech fouls since it is used to break ties in playoffs.
-		if foul.IsTechnical {
-			summary.NumOpponentTechFouls++
-		}
+	summary.FoulPoints = (opponentScore.HeadRefFouls+opponentScore.RedFarFouls+opponentScore.RedNearFouls+opponentScore.BlueFarFouls+opponentScore.BlueNearFouls)*2 + (opponentScore.HeadRefTechFouls+opponentScore.RedFarTechFouls+opponentScore.RedNearTechFouls+opponentScore.BlueFarTechFouls+opponentScore.BlueNearTechFouls)*5
+	summary.NumOpponentTechFouls = opponentScore.HeadRefTechFouls + opponentScore.RedFarTechFouls + opponentScore.RedNearTechFouls + opponentScore.BlueFarTechFouls + opponentScore.BlueNearTechFouls
+	// for _, foul := range opponentScore.Fouls {
+	// 	summary.FoulPoints += foul.PointValue()
+	// 	// Store the number of tech fouls since it is used to break ties in playoffs.
+	// 	if foul.IsTechnical {
+	// 		summary.NumOpponentTechFouls++
+	// 	}
 
-		rule := foul.Rule()
-		if rule != nil {
-			// Check for the opponent fouls that automatically trigger a ranking point.
-			if rule.IsRankingPoint {
-				summary.SustainabilityBonusRankingPoint = true
-			}
-		}
-	}
+	// 	rule := foul.Rule()
+	// 	if rule != nil {
+	// 		// Check for the opponent fouls that automatically trigger a ranking point.
+	// 		if rule.IsRankingPoint {
+	// 			summary.SustainabilityBonusRankingPoint = true
+	// 		}
+	// 	}
+	// }
 
 	summary.Score = summary.MatchPoints + summary.FoulPoints
 
@@ -269,14 +280,17 @@ func (score *Score) Equals(other *Score) bool {
 		score.EndgameStatuses != other.EndgameStatuses ||
 		score.EndgameChargeStationLevel != other.EndgameChargeStationLevel ||
 		score.PlayoffDq != other.PlayoffDq ||
-		len(score.Fouls) != len(other.Fouls) {
+		score.BlueNearFouls != other.BlueNearFouls ||
+		score.BlueNearTechFouls != other.BlueNearTechFouls ||
+		score.BlueFarFouls != other.BlueFarFouls ||
+		score.BlueFarTechFouls != other.BlueFarTechFouls ||
+		score.HeadRefFouls != other.HeadRefFouls ||
+		score.HeadRefTechFouls != other.HeadRefTechFouls ||
+		score.RedFarFouls != other.RedFarFouls ||
+		score.RedFarTechFouls != other.RedFarTechFouls ||
+		score.RedNearFouls != other.RedNearFouls ||
+		score.RedNearTechFouls != other.RedNearTechFouls {
 		return false
-	}
-
-	for i, foul := range score.Fouls {
-		if foul != other.Fouls[i] {
-			return false
-		}
 	}
 
 	return true

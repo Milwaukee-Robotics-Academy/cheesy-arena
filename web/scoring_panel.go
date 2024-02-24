@@ -28,7 +28,8 @@ func (web *Web) scoringPanelHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	fmt.Println("Vars: ", vars)
-	alliance := strings.Split(vars["alliance"], "-")[0]
+	code := vars["alliance"]
+	alliance := strings.Split(vars["alliance"], "_")[0]
 	if alliance != "red" && alliance != "blue" {
 		handleWebErr(w, fmt.Errorf("Invalid alliance '%s'.", alliance))
 		return
@@ -44,7 +45,7 @@ func (web *Web) scoringPanelHandler(w http.ResponseWriter, r *http.Request) {
 		PlcIsEnabled        bool
 		Alliance            string
 		ValidGridNodeStates map[game.Row]map[int]map[game.NodeState]string
-	}{web.arena.EventSettings, web.arena.Plc.IsEnabled(), alliance, game.ValidGridNodeStates()}
+	}{web.arena.EventSettings, web.arena.Plc.IsEnabled(), code, game.ValidGridNodeStates()}
 	err = template.ExecuteTemplate(w, "base_no_navbar", data)
 	if err != nil {
 		handleWebErr(w, err)
@@ -60,10 +61,12 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 
 	vars := mux.Vars(r)
 	fmt.Println("Vars: ", vars)
-	alliance := strings.Split(vars["alliance"], "-")[0]
-	panelType := strings.Split(vars["alliance"], "-")[1]
-	if alliance != "red" && alliance != "blue" {
-		handleWebErr(w, fmt.Errorf("Invalid alliance '%s'.", alliance))
+	allianceName := strings.Split(vars["alliance"], "_")[0]
+	panelType := strings.Split(vars["alliance"], "_")[1]
+	fmt.Println("Alliance: ", allianceName)
+	fmt.Println("Type: ", panelType)
+	if allianceName != "red" && allianceName != "blue" {
+		handleWebErr(w, fmt.Errorf("Invalid alliance '%s'.", allianceName))
 		return
 	}
 
@@ -73,7 +76,7 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	var realtimeScore **field.RealtimeScore
-	if alliance == "red" {
+	if allianceName == "red" {
 		realtimeScore = &web.arena.RedRealtimeScore
 	} else {
 		realtimeScore = &web.arena.BlueRealtimeScore
@@ -85,10 +88,10 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	defer ws.Close()
-	web.arena.ScoringPanelRegistry.RegisterPanel(alliance, ws)
+	web.arena.ScoringPanelRegistry.RegisterPanel(allianceName, ws)
 	web.arena.ScoringStatusNotifier.Notify()
 	defer web.arena.ScoringStatusNotifier.Notify()
-	defer web.arena.ScoringPanelRegistry.UnregisterPanel(alliance, ws)
+	defer web.arena.ScoringPanelRegistry.UnregisterPanel(allianceName, ws)
 
 	// Subscribe the websocket to the notifiers whose messages will be passed on to the client, in a separate goroutine.
 	go ws.HandleNotifiers(web.arena.MatchLoadNotifier, web.arena.MatchTimeNotifier, web.arena.RealtimeScoreNotifier,
@@ -114,7 +117,7 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 				ws.WriteError("Cannot commit score: Match is not over.")
 				continue
 			}
-			web.arena.ScoringPanelRegistry.SetScoreCommitted(alliance, ws)
+			web.arena.ScoringPanelRegistry.SetScoreCommitted(allianceName, ws)
 			web.arena.ScoringStatusNotifier.Notify()
 		} else {
 			args := struct {

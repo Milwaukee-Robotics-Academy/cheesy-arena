@@ -24,15 +24,46 @@
   <div id="fouls">
     <h3>Fouls</h3>
     <div id="foulButtons">
-      <div class="foul-button red-foul" onclick="addFoul('red', false);">Red</div>
+      <div class="foul-class">
+        <div class="foul-button red-foul" onclick="addFoul('red', false);">Red</div>
+        <div class="foul-intput" id="hr-red-foul"></div>
+        <div class="foul-intput" id="rn-red-foul"></div>
+        <div class="foul-intput" id="rf-red-foul"></div>
+        <div class="foul-intput" id="bn-red-foul"></div>
+        <div class="foul-intput" id="bf-red-foul"></div>
+        <div class="foul-button red-foul" onclick="removeFoul('red', false);">Subtract Red</div>
+      </div>
+    <div class="foul-class">
       <div class="foul-button red-foul" onclick="addFoul('red', true);">Red Tech</div>
+      <div class="foul-intput" id="hr-red-tech-foul"></div>
+      <div class="foul-intput" id="rn-red-tech-foul"></div>
+      <div class="foul-intput" id="rf-red-tech-foul"></div>
+      <div class="foul-intput" id="bn-red-tech-foul"></div>
+      <div class="foul-intput" id="bf-red-tech-foul"></div>
+      <div class="foul-button red-foul" onclick="removeFoul('red', true);">Subtract Red Tech</div>
+    </div>
+    <div class="foul-class">
       <div class="foul-button blue-foul" onclick="addFoul('blue', false);">Blue</div>
+      <div class="foul-intput" id="hr-blue-foul"></div>
+      <div class="foul-intput" id="rn-blue-foul"></div>
+      <div class="foul-intput" id="rf-blue-foul"></div>
+      <div class="foul-intput" id="bn-blue-foul"></div>
+      <div class="foul-intput" id="bf-blue-foul"></div>
+      <div class="foul-button blue-foul" onclick="removeFoul('blue', false);">Subtract Blue</div>
+    </div>
+    <div class="foul-class">
       <div class="foul-button blue-foul" onclick="addFoul('blue', true);">Blue Tech</div>
+      <div class="foul-intput" id="hr-blue-tech-foul"></div>
+      <div class="foul-intput" id="rn-blue-tech-foul"></div>
+      <div class="foul-intput" id="rf-blue-tech-foul"></div>
+      <div class="foul-intput" id="bn-blue-tech-foul"></div>
+      <div class="foul-intput" id="bf-blue-tech-foul"></div>
+      <div class="foul-button blue-foul" onclick="removeFoul('blue', true);">Subtract Blue Tech</div>
+    </div>
     </div>
     <div id="foulList"></div>
   </div>
 </div>
-<p>Note: Team and rule assignment are optional.</p>
 <div id="controlButtons">
   <div class="control-button" id="resetButton" onclick="signalReset();">Signal Reset</div>
   <div class="control-button" id="commitButton" onclick="commitMatch();">Commit Match</div>
