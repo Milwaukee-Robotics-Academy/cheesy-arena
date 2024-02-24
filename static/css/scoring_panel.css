@@ -48,15 +48,16 @@ body {
   width: auto;
 }
 .scoring-header>div{
-  height: 3.3vw;
+  height: 8vw;
   display: flex;
   align-items: center;
   margin: 0.4vw 1vw 0.4vw 0.2vw;
   color: #ccc;
+  font-size: 18px;
 }
 .robot-field {
-  width: 17vw;
-  height: 3.3vw;
+  width: 34vw;
+  height: 8vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -250,4 +251,53 @@ body {
   display: flex;
   flex-direction: column;
   text-align: center;
+}
+
+#fouls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+}
+#foulButtons {
+  display: flex;
+  flex-direction: row;
+}
+.foul-button {
+  width: 16vw;
+  height: 8vw;
+  font-size: 3vw;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 1vw;
+  border-radius: 1vw;
+}
+.red-foul {
+  background-color: #933;
+}
+.blue-foul {
+  background-color: #26c;
+}
+#foulList {
+  margin: 1vw 0;
+}
+.foul {
+  margin-top: 1vw;
+  height: 4vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.8vw;
+  border-radius: 0.5vw;
+}
+.foul>* {
+  margin: 0 1vw;
+}
+
+.foul-intput {
+  text-align: center;
+  font-size: 18px;
 }

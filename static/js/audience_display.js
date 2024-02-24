@@ -163,9 +163,10 @@ const handleRealtimeScore = function(data) {
   } else {
     $("#" + blueSide + "AmpTimer").css("opacity", "0.0");
   }
-
-  $("#" + redSide + "ScoreNumber").text(data.Red.ScoreSummary.Score - data.Red.ScoreSummary.EndgamePoints);
-  $("#" + blueSide + "ScoreNumber").text(data.Blue.ScoreSummary.Score - data.Blue.ScoreSummary.EndgamePoints);
+  console.log("Score");
+  console.log(data);
+  $("#" + redSide + "ScoreNumber").text(data.Red.ScoreSummary.Score - data.Red.ScoreSummary.EndStagePoints);
+  $("#" + blueSide + "ScoreNumber").text(data.Blue.ScoreSummary.Score - data.Blue.ScoreSummary.EndStagePoints);
 
   $("#" + redSide + "MelodyNumerator").text(data.Red.ScoreSummary.TotalNotes);
   $("#" + redSide + "MelodyDenominator").text(data.Red.ScoreSummary.NumSpeakersGoal);

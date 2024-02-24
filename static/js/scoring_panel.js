@@ -7,6 +7,14 @@ var websocket;
 let alliance;
 let type;
 
+const addFoul = function(alliance, isTechnical) {
+  websocket.send("addFoul", {Alliance: alliance, IsTechnical: isTechnical});
+}
+
+const removeFoul = function(alliance, isTechnical) {
+  websocket.send("removeFoul", {Alliance: alliance, IsTechnical: isTechnical});
+}
+
 // Handles a websocket message to update the teams for the current match.
 const handleMatchLoad = function(data) {
   if(type === "hp") {
@@ -17,11 +25,22 @@ const handleMatchLoad = function(data) {
     $("#stage").hide();
     $("#elements").hide();
     $("#ampAccumulatorDisable").hide();
+    $("#foulButtons").hide();
+    $("#coopertitionStatus").css("opacity", "1.0");
   } else if(type === "scorer") {
     $("#hpElements").hide();
     $(".robot-scoring").hide();
     $("#stage").hide();
     $(".scoring-header").hide();
+    $("#foulButtons").hide();
+  } else if(type === "near" || type === "far") {
+    $("#currentScore").hide();
+    $("#hpElements").hide();
+    $(".scoring-header").show();
+    $(".robot-scoring").show();
+    $("#stage").show();
+    $("#elements").hide();
+    $("#ampAccumulatorDisable").show();
   }
 
   $("#matchName").text(data.Match.LongName);
@@ -38,6 +57,15 @@ const handleMatchLoad = function(data) {
 
 // Handles a websocket message to update the match status.
 const handleMatchTime = function(data) {
+  if(type == "hp") {
+    console.log("Time");
+    console.log(data);
+    if(data.MatchTimeSec > 15 + 3 + 45 || data.MatchState != 5) {
+      $("#coopertitionStatus").css("opacity", "0.0");
+    } else {
+      $("#coopertitionStatus").css("opacity", "1.0");
+    }
+  }
   if(type == "scorer") {
     if(data.MatchState == 3 || data.MatchState == 4) { // Autonomous
       $("#elements").show();
@@ -125,6 +153,30 @@ const handleRealtimeScore = function(data) {
   $("#teleopSpeakerCountAmplified").text(score.TeleopSpeakerNotesAmplified);
   $("#trapCount1").text((score.TrapNotes));
   $("#trapCount").text("Trap Count: " + (score.TrapNotes));
+
+  if(alliance === "red" && type === "near") {
+    $("#rn-red-foul").text(data.Red.Score.RedNearFouls);
+    $("#rn-red-tech-foul").text(data.Red.Score.RedNearTechFouls);
+    $("#rn-blue-foul").text(data.Blue.Score.RedNearFouls);
+    $("#rn-blue-tech-foul").text(data.Blue.Score.RedNearTechFouls);
+  } else if(alliance === "red" && type == "far") {  
+    $("#rf-red-foul").text(data.Red.Score.RedFarFouls);    
+    $("#rf-red-tech-foul").text(data.Red.Score.RedFarTechFouls);    
+    $("#rf-blue-foul").text(data.Blue.Score.RedFarFouls);
+    $("#rf-blue-tech-foul").text(data.Blue.Score.RedFarTechFouls);
+  } else if(alliance === "blue" && type === "near") {
+    $("#bn-red-foul").text(data.Red.Score.BlueNearFouls);
+    $("#bn-red-tech-foul").text(data.Red.Score.BlueNearTechFouls);
+    $("#bn-blue-foul").text(data.Blue.Score.BlueNearFouls);
+    $("#bn-blue-tech-foul").text(data.Blue.Score.BlueNearTechFouls);
+  } else if(alliance === "blue" && type === "far") {
+    $("#bf-red-foul").text(data.Red.Score.BlueFarFouls);
+    $("#bf-red-tech-foul").text(data.Red.Score.BlueFarTechFouls);
+    $("#bf-blue-foul").text(data.Blue.Score.BlueFarFouls);
+    $("#bf-blue-tech-foul").text(data.Blue.Score.BlueFarTechFouls);
+  }
+
+  
 
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 9; j++) {

@@ -119,6 +119,135 @@ func (web *Web) scoringPanelWebsocketHandler(w http.ResponseWriter, r *http.Requ
 			}
 			web.arena.ScoringPanelRegistry.SetScoreCommitted(allianceName, ws)
 			web.arena.ScoringStatusNotifier.Notify()
+		} else if command == "addFoul" {
+			args := struct {
+				Alliance    string
+				IsTechnical bool
+			}{}
+			err = mapstructure.Decode(data, &args)
+			if err != nil {
+				ws.WriteError(err.Error())
+				continue
+			}
+
+			// Add the foul to the correct alliance's list.
+			if args.Alliance == "red" {
+				if args.IsTechnical {
+					if allianceName == "red" && panelType == "near" {
+						web.arena.RedRealtimeScore.CurrentScore.RedNearTechFouls += 1
+					} else if allianceName == "red" && panelType == "far" {
+						web.arena.RedRealtimeScore.CurrentScore.RedFarTechFouls += 1
+					} else if allianceName == "blue" && panelType == "near" {
+						web.arena.RedRealtimeScore.CurrentScore.BlueNearTechFouls += 1
+					} else {
+						web.arena.RedRealtimeScore.CurrentScore.BlueFarTechFouls += 1
+					}
+				} else {
+					if allianceName == "red" && panelType == "near" {
+						web.arena.RedRealtimeScore.CurrentScore.RedNearFouls += 1
+					} else if allianceName == "red" && panelType == "far" {
+						web.arena.RedRealtimeScore.CurrentScore.RedFarFouls += 1
+					} else if allianceName == "blue" && panelType == "near" {
+						web.arena.RedRealtimeScore.CurrentScore.BlueNearFouls += 1
+					} else {
+						web.arena.RedRealtimeScore.CurrentScore.BlueFarFouls += 1
+					}
+				}
+				// web.arena.RedRealtimeScore.CurrentScore.Fouls =
+				// 	append(web.arena.RedRealtimeScore.CurrentScore.Fouls, foul)
+			} else {
+				if args.IsTechnical {
+					if allianceName == "red" && panelType == "near" {
+						web.arena.BlueRealtimeScore.CurrentScore.RedNearTechFouls += 1
+					} else if allianceName == "red" && panelType == "far" {
+						web.arena.BlueRealtimeScore.CurrentScore.RedFarTechFouls += 1
+					} else if allianceName == "blue" && panelType == "near" {
+						web.arena.BlueRealtimeScore.CurrentScore.BlueNearTechFouls += 1
+					} else {
+						web.arena.BlueRealtimeScore.CurrentScore.BlueFarTechFouls += 1
+					}
+				} else {
+					if allianceName == "red" && panelType == "near" {
+						web.arena.BlueRealtimeScore.CurrentScore.RedNearFouls += 1
+					} else if allianceName == "red" && panelType == "far" {
+						web.arena.BlueRealtimeScore.CurrentScore.RedFarFouls += 1
+					} else if allianceName == "blue" && panelType == "near" {
+						web.arena.BlueRealtimeScore.CurrentScore.BlueNearFouls += 1
+					} else {
+						web.arena.BlueRealtimeScore.CurrentScore.BlueFarFouls += 1
+					}
+				}
+			}
+			web.arena.RealtimeScoreNotifier.Notify()
+		} else if command == "removeFoul" {
+			args := struct {
+				Alliance    string
+				IsTechnical bool
+			}{}
+			err = mapstructure.Decode(data, &args)
+			if err != nil {
+				ws.WriteError(err.Error())
+				continue
+			}
+
+			// Add the foul to the correct alliance's list.
+			if args.Alliance == "red" {
+				if allianceName == "red" && panelType == "near" {
+					if args.IsTechnical && web.arena.RedRealtimeScore.CurrentScore.RedNearTechFouls >= 1 {
+						web.arena.RedRealtimeScore.CurrentScore.RedNearTechFouls -= 1
+					} else if web.arena.RedRealtimeScore.CurrentScore.RedNearFouls >= 1 {
+						web.arena.RedRealtimeScore.CurrentScore.RedNearFouls -= 1
+					}
+				} else if allianceName == "red" && panelType == "far" {
+					if args.IsTechnical && web.arena.RedRealtimeScore.CurrentScore.RedFarTechFouls >= 1 {
+						web.arena.RedRealtimeScore.CurrentScore.RedFarTechFouls -= 1
+					} else if web.arena.RedRealtimeScore.CurrentScore.RedFarFouls >= 1 {
+						web.arena.RedRealtimeScore.CurrentScore.RedFarFouls -= 1
+					}
+				} else if allianceName == "blue" && panelType == "far" {
+					if args.IsTechnical && web.arena.RedRealtimeScore.CurrentScore.BlueFarTechFouls >= 1 {
+						web.arena.RedRealtimeScore.CurrentScore.BlueFarTechFouls -= 1
+					} else if web.arena.RedRealtimeScore.CurrentScore.BlueFarFouls >= 1 {
+						web.arena.RedRealtimeScore.CurrentScore.BlueFarFouls -= 1
+					}
+				} else {
+					if args.IsTechnical && web.arena.RedRealtimeScore.CurrentScore.BlueNearTechFouls >= 1 {
+						web.arena.RedRealtimeScore.CurrentScore.BlueNearTechFouls -= 1
+					} else if web.arena.RedRealtimeScore.CurrentScore.BlueNearFouls >= 1 {
+						web.arena.RedRealtimeScore.CurrentScore.BlueNearFouls -= 1
+					}
+				}
+
+				// web.arena.RedRealtimeScore.CurrentScore.Fouls =
+				// 	append(web.arena.RedRealtimeScore.CurrentScore.Fouls, foul)
+			} else {
+				if allianceName == "red" && panelType == "near" {
+					if args.IsTechnical && web.arena.BlueRealtimeScore.CurrentScore.RedNearTechFouls >= 1 {
+						web.arena.BlueRealtimeScore.CurrentScore.RedNearTechFouls -= 1
+					} else if web.arena.BlueRealtimeScore.CurrentScore.RedNearFouls >= 1 {
+						web.arena.BlueRealtimeScore.CurrentScore.RedNearFouls -= 1
+					}
+				} else if allianceName == "red" && panelType == "far" {
+					if args.IsTechnical && web.arena.BlueRealtimeScore.CurrentScore.RedFarTechFouls >= 1 {
+						web.arena.BlueRealtimeScore.CurrentScore.RedFarTechFouls -= 1
+					} else if web.arena.BlueRealtimeScore.CurrentScore.RedFarFouls >= 1 {
+						web.arena.BlueRealtimeScore.CurrentScore.RedFarFouls -= 1
+					}
+				} else if allianceName == "blue" && panelType == "far" {
+					if args.IsTechnical && web.arena.BlueRealtimeScore.CurrentScore.BlueFarTechFouls >= 1 {
+						web.arena.BlueRealtimeScore.CurrentScore.BlueFarTechFouls -= 1
+					} else if web.arena.BlueRealtimeScore.CurrentScore.BlueFarFouls >= 1 {
+						web.arena.BlueRealtimeScore.CurrentScore.BlueFarFouls -= 1
+					}
+				} else {
+					if args.IsTechnical && web.arena.BlueRealtimeScore.CurrentScore.BlueNearTechFouls >= 1 {
+						web.arena.BlueRealtimeScore.CurrentScore.BlueNearTechFouls -= 1
+					} else if web.arena.BlueRealtimeScore.CurrentScore.BlueNearFouls >= 1 {
+						web.arena.BlueRealtimeScore.CurrentScore.BlueNearFouls -= 1
+					}
+				}
+			}
+			web.arena.RealtimeScoreNotifier.Notify()
 		} else {
 			args := struct {
 				TeamPosition int

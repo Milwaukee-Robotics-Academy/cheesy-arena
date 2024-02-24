@@ -78,6 +78,19 @@ const handleMatchTime = function(data) {
   $(".control-button").attr("data-enabled", matchStates[data.MatchState] === "POST_MATCH");
 };
 
+const numToStageStatus = function(num) {
+  switch(num) {
+    case 0:
+      return "None";
+    case 1:
+      return "Parked";
+    case 2:
+      return "Onstage";
+    case 3:
+      return "Spotlit";
+  }
+}
+
 // Handles a websocket message to update the realtime scoring fields.
 const handleRealtimeScore = function(data) {
   for (const [teamId, card] of Object.entries(Object.assign(data.RedCards, data.BlueCards))) {
@@ -107,6 +120,19 @@ const handleRealtimeScore = function(data) {
   $("#rf-blue-tech-foul").text("Red Far: " + data.Blue.Score.RedFarTechFouls);
   $("#bn-blue-tech-foul").text("Blue Near: " + data.Blue.Score.BlueNearTechFouls);
   $("#bf-blue-tech-foul").text("Blue Far: " + data.Blue.Score.BlueFarTechFouls);
+
+  console.log(data);
+  $("#redMobility").text("Mobility: " + data.Red.Score.MobilityStatuses[0] + " / " + data.Red.Score.MobilityStatuses[1]);
+  $("#redStage").text("Stage: " + numToStageStatus(data.Red.Score.StageStatuses[0])  + " / " + numToStageStatus(data.Red.Score.StageStatuses[1]));
+  $("#redHarmony").text("Harmony: " + data.Red.Score.HarmonyStatuses[0] + " / " + data.Red.Score.HarmonyStatuses[1]);
+  $("#redTrap").text("Trap: " + data.Red.Score.TrapNotes);
+
+  console.log(data);
+  $("#blueMobility").text("Mobility: " + data.Blue.Score.MobilityStatuses[0] + " / " + data.Blue.Score.MobilityStatuses[1]);
+  $("#blueStage").text("Stage: " + numToStageStatus(data.Blue.Score.StageStatuses[0])  + " / " + numToStageStatus(data.Blue.Score.StageStatuses[1]));
+  $("#blueHarmony").text("Harmony: " + data.Blue.Score.HarmonyStatuses[0] + " / " + data.Blue.Score.HarmonyStatuses[1]);
+  $("#blueTrap").text("Trap: " + data.Blue.Score.TrapNotes);
+
 
   // const newRedFoulsHashCode = hashObject(data.Red.Score.Fouls);
   // const newBlueFoulsHashCode = hashObject(data.Blue.Score.Fouls);
